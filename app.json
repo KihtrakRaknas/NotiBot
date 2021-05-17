@@ -17,16 +17,33 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kihtrak.NOTIBOT",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
+      "package": "com.kihtrak.NOTIBOT",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./assets/favicon.png",
+      "config": {
+        "firebase": {
+          "apiKey": "AIzaSyBc_AtukKnVqdNYRefB-NtZLy5otD8KMvA",
+          "authDomain": "notibotapp.firebaseapp.com",
+          "databaseURL": "https://notibotapp.firebaseio.com",
+          "projectId": "notibotapp",
+          "storageBucket": "notibotapp.appspot.com",
+          "messagingSenderId": "896187396809",
+          "appId": "1:896187396809:web:719da9552c5ef5ea669318",
+          "measurementId": "G-J6CCLDFN7E"
+        }
+      }
+    },
+    "scheme": "notibot"
   }
 }
