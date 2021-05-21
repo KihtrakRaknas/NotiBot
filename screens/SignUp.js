@@ -1,23 +1,24 @@
 import React from 'react'
-import { StyleSheet, Text, TextInput, View, Button, Alert, KeyboardAvoidingView, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, TextInput, View,  Alert, KeyboardAvoidingView, TouchableOpacity, SafeAreaView } from 'react-native'
 import firebase from 'firebase';
+import { Button } from 'react-native-elements';
 
 export default function SignUp({ navigation, route}) {
     const [email, setEmail] = React.useState(route.params.email)
-    const [password, setPassword] = React.useState('route.params.email')
+    const [password, setPassword] = React.useState(null)
     const [errorMessage, setErrorMessage] = React.useState(null)
     const handleSignUp = () => {
       firebase
         .auth()
-        .createUserWithEmailAndPassword(this.state.email, this.state.password)
+        .createUserWithEmailAndPassword(email, password)
         .then(() => {
-          firebase.firestore().collection('Users').doc(currentUser.uid).onSnapshot((doc) => {
-            console.log("Current data: ", doc.data());
-            if(checkUserFeilds(doc.data()))
-              this.props.navigation.navigate('LoggedIn')
-            else
-              this.props.navigation.navigate('SetUp')
-          });
+          // firebase.firestore().collection('Users').doc(currentUser.uid).onSnapshot((doc) => {
+          //   console.log("Current data: ", doc.data());
+          //   if(checkUserFeilds(doc.data()))
+          //     this.props.navigation.navigate('LoggedIn')
+          //   else
+          //     this.props.navigation.navigate('SetUp')
+          // });
         })
         .catch(error => {
           setErrorMessage(error.message)
@@ -26,10 +27,11 @@ export default function SignUp({ navigation, route}) {
     }
     return (
       <KeyboardAvoidingView behavior="padding" style={styles.container}>
+        <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>{/*  SafeAreaView makes it nice looking on iPad */}
           <Text style={styles.title}>Sign Up</Text>
-          {this.state.errorMessage &&
+          {errorMessage &&
           <Text style={{ color: 'blue', marginBottom:20 }}>
-              {this.state.errorMessage}
+              {errorMessage}
           </Text>} 
           <View style={styles.textInputBox}>
             <TextInput
@@ -54,15 +56,17 @@ export default function SignUp({ navigation, route}) {
           </View>
           <TouchableOpacity 
             style={styles.submitButton}
-            onPress={this.handleSignUp}
+            onPress={handleSignUp}
           >
             <Text style={{color:"white",fontSize:20,}}>Create Account</Text>
           </TouchableOpacity>
           <Button
-            color="#d1faff"
+            titleStyle={{color:"white"}}//"#d1faff"
             title="Already have an account? Login"
-            onPress={() => navigation.navigate('Login')}
+            onPress={() => navigation.navigate('SignIn')}
+            type="clear"
           />
+        </SafeAreaView>
       </KeyboardAvoidingView>
     )
 }
@@ -79,7 +83,7 @@ const styles = StyleSheet.create({
     borderBottomColor:"white",
     borderBottomWidth: 1,
     marginBottom: 40,
-    width:"90%",
+    alignSelf: 'stretch',
   },
   textInput: {
     alignSelf: 'stretch',
@@ -88,7 +92,6 @@ const styles = StyleSheet.create({
     fontWeight: '200',
     marginBottom: 0,
     color:"white",
-    
   },
   title: {
     fontSize:50,
@@ -98,7 +101,7 @@ const styles = StyleSheet.create({
   submitButton:{
     alignItems: 'center',
     backgroundColor:"blue",
-    width:"90%",
+    alignSelf: 'stretch',
     padding:15,
     borderRadius:7,
     marginBottom:10

@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "896187396809-i55h6jach0jrja5studqj9dr2iiuhf8a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kihtrak.NOTIBOT",
+            "certificate_hash": "f27e13c420821872282a923b4cb45f78a4fe4213"
+          }
+        },
+        {
           "client_id": "896187396809-89ltb58u1or8fnetjgn90btpmb4ghmaq.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -28,8 +36,15 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "896187396809-89ltb58u1or8fnetjgn90btpmb4ghmaq.apps.googleusercontent.com",
+              "client_id": "896187396809-5tbhq093deljombkbflt9c5mrfu7qvum.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "896187396809-2ks3dj1dogegfsc8a9jr32s33tt4rben.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "host.exp.exponent"
+              }
             }
           ]
         }

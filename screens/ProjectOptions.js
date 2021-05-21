@@ -40,7 +40,7 @@ export default function Home({ navigation, route }) {
                                 fetch("https://notibot-server.herokuapp.com/getProfileInfo", { body: JSON.stringify({ uid }), method: 'POST', headers: { "Content-Type": "application/json" } }).then((res) => res.json()).then((profile) => {
                                     profileInfoMap.current[uid] = profile
                                     //console.log(profile)
-                                    setUsers([...users, { group: groupName, profile: profileInfoMap.current[uid] }, { group: groupName, profile: profileInfoMap.current[uid] }, { group: groupName, profile: profileInfoMap.current[uid] }, { group: groupName, profile: profileInfoMap.current[uid] }, { group: groupName, profile: profileInfoMap.current[uid] }, { group: groupName, profile: profileInfoMap.current[uid] }, { group: groupName, profile: profileInfoMap.current[uid] }, { group: groupName, profile: profileInfoMap.current[uid] }, { group: groupName, profile: profileInfoMap.current[uid] }, { group: groupName, profile: profileInfoMap.current[uid] }, { group: groupName, profile: profileInfoMap.current[uid] }])
+                                    setUsers([...users, { group: groupName, profile: profileInfoMap.current[uid] }])
                                 })
                             else {
                                 tempUsers.push({ group: groupName, profile: profileInfoMap.current[uid] }) // Don't re-render until finished
@@ -148,7 +148,7 @@ export default function Home({ navigation, route }) {
                 </View>
             </Overlay>
             <ScrollView contentContainerStyle={styles.container}>
-                <ScrollView style={{width:"100%", /*maxHeight: "60%"*/}}>
+                <View style={{width:"100%"}}>
                     {(() => {
                         let userElements = []
                         for(let itemIndex in users){
@@ -164,7 +164,7 @@ export default function Home({ navigation, route }) {
                         }
                         return userElements
                     })()}
-                </ScrollView>
+                </View>
                 {/* <FlatList
                     style={{ width: "100%", maxHeight: "60%" }}
                     data={users}

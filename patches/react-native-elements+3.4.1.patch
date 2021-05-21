@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native-elements/dist/avatar/Avatar.js b/node_modules/react-native-elements/dist/avatar/Avatar.js
+index b38aecc..550c2bc 100644
+--- a/node_modules/react-native-elements/dist/avatar/Avatar.js
++++ b/node_modules/react-native-elements/dist/avatar/Avatar.js
+@@ -39,7 +39,7 @@ const AvatarComponent = (_a) => {
+         {title}
+       </Text>)) ||
+         (icon && (<Icon style={StyleSheet.flatten([iconStyle && iconStyle])} color={icon.color || 'white'} name={icon.name || 'user'} size={icon.size || iconSize} type={icon.type && icon.type}/>));
+-    const hidePlaceholder = !(source && source.uri);
++    const hidePlaceholder = false//!(source && source.uri);
+     const imageContainerStyle = StyleSheet.flatten([
+         styles.overlayContainer,
+         rounded && { borderRadius: width / 2, overflow: 'hidden' },

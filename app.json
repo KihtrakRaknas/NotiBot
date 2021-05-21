@@ -2,7 +2,7 @@
   "expo": {
     "name": "NotiBot",
     "slug": "NotiBot",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -19,14 +19,26 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.kihtrak.NOTIBOT",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "config": {
+        "googleSignIn": {
+          "reservedClientId": "com.googleusercontent.apps.896187396809-gc46s18rgvue2qq9cgh7ul03quflo015"
+        }
+      }
     },
     "android": {
       "package": "com.kihtrak.NOTIBOT",
       "googleServicesFile": "./google-services.json",
+      "useNextNotificationsApi":true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
+      },
+      "config": {
+        "googleSignIn": {
+          "apiKey": "AIzaSyAH1oQArVDhObvK9-OZ1ouzKUMtDYPH-zk",
+          "certificateHash": "F27E13C420821872282A923B4CB45F78A4FE4213"
+        }
       }
     },
     "web": {

@@ -4,7 +4,6 @@ import { ListItem } from 'react-native-elements'
 import firebase from 'firebase';
 import '@firebase/firestore';
 import { Notifications } from 'expo';
-import * as Permissions from 'expo-permissions';
 
 export default function Settings({navigation}) {
   function signOut(){

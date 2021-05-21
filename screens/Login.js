@@ -1,17 +1,20 @@
 import React from 'react';
-import { StyleSheet, Text, TextInput, View, Alert, KeyboardAvoidingView, TouchableOpacity, SafeAreaView} from 'react-native'
+import { StyleSheet, Text, TextInput, View, Alert, KeyboardAvoidingView, TouchableOpacity, SafeAreaView, Platform} from 'react-native'
 import firebase from 'firebase';
 import * as Google from 'expo-auth-session/providers/google';
+// import * as Google from 'expo-google-app-auth';
+import * as GoogleSignIn from 'expo-google-sign-in';
 import { SocialIcon } from 'react-native-elements';
 import * as WebBrowser from 'expo-web-browser';
 import { Button } from 'react-native-elements';
-
+import Constants from 'expo-constants';
 WebBrowser.maybeCompleteAuthSession();
 
 export default function Login({ navigation }) {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [errorMessage, setErrorMessage] = React.useState(null);
+  
 
   function handleLogin() {
     firebase
@@ -31,6 +34,27 @@ export default function Login({ navigation }) {
     })
   }  
 
+  React.useEffect(() => {
+    if(Platform.OS == 'android'){
+      WebBrowser.warmUpAsync();
+      
+      return () => {
+        WebBrowser.coolDownAsync();
+      };
+    }
+    if(Constants.appOwnership == "standalone"){ // init native sign in with google logic
+
+      GoogleSignIn.initAsync({
+        // You may ommit the clientId when the firebase `googleServicesFile` is configured
+        // clientId: '<YOUR_IOS_CLIENT_ID>',
+        // Provide other custom options...
+      }).catch (({ message }) => {
+        Alert.alert('GoogleSignIn.initAsync(): ' + message);
+      })
+    }
+
+  }, []);
+
   // const config = {
   //   //
   //   //androidClientId:"",
@@ -40,12 +64,16 @@ export default function Login({ navigation }) {
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest(
     {
-      clientId: '896187396809-89ltb58u1or8fnetjgn90btpmb4ghmaq.apps.googleusercontent.com',
+      expoClientId: '896187396809-tn4obhk9l23t5u8uhmrspmn89iph7lr0.apps.googleusercontent.com',
+      webClientId: '896187396809-5tbhq093deljombkbflt9c5mrfu7qvum.apps.googleusercontent.com',
+      // clientId: '896187396809-89ltb58u1or8fnetjgn90btpmb4ghmaq.apps.googleusercontent.com',
       androidClientId: '896187396809-i55h6jach0jrja5studqj9dr2iiuhf8a.apps.googleusercontent.com'
     },
   );
 
   React.useEffect(() => {
+    console.log("response: ")
+    console.log(response)
     if (response?.type === 'success') {
       const { id_token } = response.params;
       console.log(id_token)
@@ -59,7 +87,7 @@ export default function Login({ navigation }) {
 
   return (
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
-      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center',}}>
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Text style={styles.title}>Login</Text>
         {errorMessage &&
         <Text style={styles.errorMessage}>
@@ -94,17 +122,38 @@ export default function Login({ navigation }) {
         </TouchableOpacity>
         <SocialIcon
           title={"Sign In With Google"}
-          disabled={!request}
+          disabled={!request && Constants.appOwnership != "standalone"}
           button={true}
           light
           style={styles.submitButton}
           type={"google"}
-          onPress={promptAsync}
+          onPress={async ()=>{
+            if(Constants.appOwnership != "standalone") {
+              console.log("promting async")
+              promptAsync()
+            } else {
+              try {
+                await GoogleSignIn.askForPlayServicesAsync();
+                const { type, user } = await GoogleSignIn.signInAsync();
+                if (type === 'success') {
+                  const idToken = user.auth.idToken
+                  console.log(idToken)
+                  const credential = firebase.auth.GoogleAuthProvider.credential(idToken);
+                  firebase.auth().signInWithCredential(credential).catch((error) => {
+                    console.log(error)
+                    Alert.alert(error.message)
+                  });
+                }
+              } catch ({ message }) {
+                Alert.alert('login: Error:' + message);
+              }
+            }
+          }}
         />
         <Button
           titleStyle={{color:"white"}}//"#d1faff"
           title="Don't have an account? Sign Up"
-          disabled={!request}
+          disabled={!request && Constants.appOwnership != "standalone"}
           onPress={() => navigation.navigate('SignUp',{email})}
           type="clear"
         />
