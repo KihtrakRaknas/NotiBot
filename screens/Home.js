@@ -27,6 +27,7 @@ export default function Home({ navigation }) {
   const [errorMessage, setErrorMessage] = React.useState('');
   const initialDeepLink = useContext(DeepLinkContext)
   const mainStackLoadedRef = useContext(MainStackLoadedContext)
+  const linkTo = useLinkTo();
 
   const currentUserUid = firebase.auth().currentUser.uid;
   const db = firebase.firestore();
@@ -39,24 +40,29 @@ export default function Home({ navigation }) {
   async function createNewProject() {
     const valid = await checkProjName()
     if (valid) {
-      await db.collection('Projects').doc(projectName).set({
-        'Owner': firebase.firestore.FieldValue.arrayUnion(currentUserUid)
-      })
-      await db.collection('Users').doc(currentUserUid).set({
-        'Projects': firebase.firestore.FieldValue.arrayUnion(projectName)
-      }, { merge: true })
-      setVisible(false)
+      try{
+        await db.collection('Projects').doc(projectName).set({
+          'Owner': firebase.firestore.FieldValue.arrayUnion(currentUserUid)
+        })
+        await db.collection('Users').doc(currentUserUid).set({
+          'Projects': firebase.firestore.FieldValue.arrayUnion(projectName)
+        }, { merge: true })
+        setVisible(false)
+      } catch(e) {
+        if(e.code == "permission-denied" || e.code == "already-exists"){
+          setErrorMessage(`Name already taken: ${projectName}`)
+        }
+      }
     }
   }
 
   async function checkProjName() {
-    if (projectName.length < 5) {
-      setErrorMessage(`Your name must be at least 5 characters. You only have: ${projectName.length}`)
+    if (projectName.length < 2) {
+      setErrorMessage(`Your name must be at least 2 characters. You only have: ${projectName.length}`)
       return false
     }
-    const doc = await db.collection('Projects').doc(projectName).get({ source: 'server' });
-    if (doc.exists) {
-      setErrorMessage(`Name already used: ${projectName}`)
+    if (!projectName.match("^[A-Za-z0-9]+$")){
+      setErrorMessage(`Your name must only have letters and numbers (no spaces or special characters)`)
       return false
     }
     return true
@@ -90,118 +96,93 @@ export default function Home({ navigation }) {
     }
   };
 
+  async function setNotificationCategories() {
+    await Notifications.setNotificationCategoryAsync("standard",[
+      {
+        identifier:"deleteNotif", 
+        buttonTitle: "Delete",
+        options: {
+          opensAppToForeground:false,
+          isAuthenticationRequired:true,
+          isDestructive:true
+        }
+      }
+    ],{previewPlaceholder:"NotiBot Notification"})
+    await Notifications.setNotificationCategoryAsync("webhookbutton",[
+      {
+        identifier:"webhookAction", 
+        buttonTitle: "Trigger Webhook Action",
+        options: {
+          opensAppToForeground:true,
+          isAuthenticationRequired:true,
+          isDestructive:false
+        }
+      },
+      {
+        identifier:"deleteNotif", 
+        buttonTitle: "Delete",
+        options: {
+          opensAppToForeground:true,
+          isAuthenticationRequired:true,
+          isDestructive:true
+        }
+      }
+    ],{previewPlaceholder:"NotiBot Notification With Webhook Action"})
+    await Notifications.setNotificationCategoryAsync("webhooktext",[
+      {
+        identifier:"webhookReply", 
+        buttonTitle: "Send Text to Webhook",
+        textInput:{
+          submitButtonTitle:"SEND",
+          placeholder:""
+        },
+        options: {
+          opensAppToForeground:true,
+          isAuthenticationRequired:true,
+          isDestructive:false
+        }
+      },
+      {
+        identifier:"deleteNotif", 
+        buttonTitle: "Delete",
+        options: {
+          opensAppToForeground:true,
+          isAuthenticationRequired:true,
+          isDestructive:true
+        }
+      }
+    ],{previewPlaceholder:"NotiBot Notification With Webhook Reply"})
+  }
+
   React.useEffect(() => {
     if (Constants.isDevice && Platform.OS !== 'web') { //Expo's support for web push is "pending"
-     registerForPushNotificationsAsync()
+     registerForPushNotificationsAsync().then(setNotificationCategories)
     }
+      
   }, [true])
-
-  // Set up notifications
-  // React.useEffect(() => {
-  //   if (Constants.isDevice && Platform.OS !== 'web') { //Expo's support for web push is "pending"
-  //     registerForPushNotificationsAsync()
-  //     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-  //       // console.log(notification)
-  //       const notifContent = notification.request.content
-  //       showMessage({
-  //         message: notifContent.title,
-  //         description: notifContent.body,
-  //         type: "info",
-  //         onPress: ()=>linkTo(`/Main/Projects/Notification?projTitle=${notifContent.data?.project}&timestamp=${notifContent.data?.timestamp}`)
-  //       });
-  //     });
-
-  //     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-  //       const notifMetaData = response.notification.request.content.data
-  //       console.log(notifMetaData?.project)
-  //       console.log(notifMetaData?.timestamp)
-  //       console.log(response.actionIdentifier)
-  //       Alert.alert(response.actionIdentifier)
-  //       if (response.actionIdentifier == "deleteNotif"){
-  //         Alert.alert("delete")
-  //         fetch("https://notibot.kihtrak.com/?project=testt&body=test Body Yeet&title=fetch made")
-  //         console.log("whoa")
-  //       }else{ // response.actionIdentifier == Notifications.DEFAULT_ACTION_IDENTIFIER
-  //         Alert.alert("jump to notif")
-  //         linkTo(`/Main/Projects/Notification?projTitle=${notifMetaData?.project}&timestamp=${notifMetaData?.timestamp}`)
-  //       }
-  //     });
-
-  //     Notifications.setNotificationCategoryAsync("standard",[
-  //       {
-  //         identifier:"deleteNotif", 
-  //         buttonTitle: "Delete",
-  //         options: {
-  //           opensAppToForeground:false,
-  //           isAuthenticationRequired:true,
-  //           isDestructive:true
-  //         }
-  //       }
-  //     ],{previewPlaceholder:"NotiBot Notification"})
-  //     Notifications.setNotificationCategoryAsync("webhookbutton",[
-  //       {
-  //         identifier:"webhookAction", 
-  //         buttonTitle: "Trigger Webhook Action",
-  //         options: {
-  //           opensAppToForeground:true,
-  //           isAuthenticationRequired:true,
-  //           isDestructive:false
-  //         }
-  //       },
-  //       {
-  //         identifier:"deleteNotif", 
-  //         buttonTitle: "Delete",
-  //         options: {
-  //           opensAppToForeground:true,
-  //           isAuthenticationRequired:true,
-  //           isDestructive:true
-  //         }
-  //       }
-  //     ],{previewPlaceholder:"NotiBot Notification With Webhook Action"})
-  //     Notifications.setNotificationCategoryAsync("webhooktext",[
-  //       {
-  //         identifier:"webhookReply", 
-  //         buttonTitle: "Send Text to Webhook",
-  //         textInput:{
-  //           submitButtonTitle:"send",
-  //           placeholder:""
-  //         },
-  //         options: {
-  //           opensAppToForeground:true,
-  //           isAuthenticationRequired:true,
-  //           isDestructive:false
-  //         }
-  //       },
-  //       {
-  //         identifier:"deleteNotif", 
-  //         buttonTitle: "Delete",
-  //         options: {
-  //           opensAppToForeground:true,
-  //           isAuthenticationRequired:true,
-  //           isDestructive:true
-  //         }
-  //       }
-  //     ],{previewPlaceholder:"NotiBot Notification With Webhook Reply"})
-  //   } //else {
-  //     //alert('Must use physical device for Push Notifications');
-  //     //}
-  //   return () => {
-  //     Notifications.removeNotificationSubscription(notificationListener.current);
-  //     Notifications.removeNotificationSubscription(responseListener.current);
-  //   };
-  // }, [true])
 
   const getTimeStamp = (item) => projectsData[item].Notifications && projectsData[item].Notifications.length > 0 ? projectsData[item].Notifications[projectsData[item].Notifications.length - 1].timestamp : 0
 
   React.useLayoutEffect(()=>{
     const parsedDeepLink = initialDeepLink?.substring(prefix.length-1)
-    if(numberOfProjects == projects.length && projects.length>0 && !(parsedDeepLink && parsedDeepLink.length>1) && !mainStackLoadedRef.current.queue) { // projects have finished downloading
-      console.log("opening most recent project!")
-      navigation.navigate("Project", { title: projects[0] })
+    if(parsedDeepLink && parsedDeepLink.length>1 && parsedDeepLink[0]=='/') {
+      // Moved to a separate effect so it wont get triggers everytime projects changes
+      // linkTo(parsedDeepLink)
+    }else if(numberOfProjects == projects.length && !mainStackLoadedRef.current.queue) { // projects have finished downloading
+      if(projects.length>0){
+        console.log("opening most recent project!")
+        navigation.navigate("Project", { title: projects[0] })
+      }
       navigation.openDrawer()
     }
     mainStackLoadedRef.current.mainStackLoaded()
   },[projects, numberOfProjects])
+
+  React.useEffect(()=>{ // handle deep links
+    const parsedDeepLink = initialDeepLink?.substring(prefix.length-1)
+    if(parsedDeepLink && parsedDeepLink.length>1 && parsedDeepLink[0]=='/')
+      linkTo(encodeURI(parsedDeepLink))
+  },[true])
 
   React.useLayoutEffect(() => {
     const subscriptionFunctions = []
@@ -220,6 +201,8 @@ export default function Home({ navigation }) {
                 if (projects.indexOf(projectName) == -1) {
                   projects = [projectName, ...projects]
                   console.log(`adding project to array: ${projectName}`)
+                }else if(!data){
+                  projects = projects.filter(project=>project!=projectName)
                 }
                 projects.sort((a, b) => getTimeStamp(b) - getTimeStamp(a))
                 setLoading(false)
@@ -291,7 +274,7 @@ export default function Home({ navigation }) {
             // console.log(projectsData)
             // console.log(projectsData[item])
             if (!projectsData[item]) {
-              console.warn(`Trying to render a project that doesn't exist` + `item: ${item}`)
+              console.warn(`Trying to render a project that doesn't exist item: ${item}`)
               return null
             }
             return (<ListItem style={{ borderRadius: 20, marginVertical: 5 }} bottomDivider topDivider onPress={() => {

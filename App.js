@@ -1,5 +1,5 @@
 import React, {useEffect, useRef} from 'react';
-import { AsyncStorage, Button, Text, TextInput, View, useWindowDimensions, Dimensions, Platform, Alert } from 'react-native';
+import { Button, Text, TextInput, View, useWindowDimensions, Dimensions, Platform, Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator,   DrawerContentScrollView,  DrawerItemList, } from '@react-navigation/drawer';
@@ -70,6 +70,13 @@ export default function App() {
   // const linkTo = useLinkTo();
   const navigation = useRootNavigation();
 
+  const openLinkInApp = (appUrl)=>{
+    if(mainStackLoadedRef.current.loaded)
+      navigation.linkTo(appUrl)
+    else
+      mainStackLoadedRef.current.queue = ()=> navigation.linkTo(appUrl)
+  }
+  
   // Set up notifications
   React.useLayoutEffect(() => {
     // setTimeout(()=>navigation.linkTo(`Main/Projects/Notification?projTitle=testt&timestamp=1621574434297`),5*1000)
@@ -82,97 +89,43 @@ export default function App() {
           message: notifContent.title,
           description: notifContent.body,
           type: "info",
-          onPress: ()=> navigation.linkTo(`/Main/Projects/Notification?projTitle=${notifContent.data?.project}&timestamp=${notifContent.data?.timestamp}`)
+          hideStatusBar:true,
+          onPress: ()=>{
+            navigation.linkTo(`/Main/Projects/Notification?projTitle=${notifContent.data?.project}&timestamp=${notifContent.data?.firebaseData?.timestamp}`)
+          }
         });
       });
 
-      responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      responseListener.current = Notifications.addNotificationResponseReceivedListener(async response => {
         const notifMetaData = response.notification.request.content.data
-        console.log(notifMetaData?.project)
-        console.log(notifMetaData?.timestamp)
-        console.log(response.actionIdentifier)
-        // Alert.alert(response.actionIdentifier)
         if (response.actionIdentifier == "deleteNotif"){
           // Alert.alert("delete")
-          fetch("https://notibot.kihtrak.com/?project=testt&body=test Body Yeet&title=fetch made")
-          console.log("whoa")
-        }else if(response.actionIdentifier == "webhookAction"){
-          fetch(notifMetaData?.webhook).catch((e)=>{
-            console.warn(e);
-            Alert.Alert(e)
-          })
+          return db.collection('Projects').doc(notifMetaData?.project).set({
+            'Notifications':firebase.firestore.FieldValue.arrayRemove(notifMetaData?.firebaseData)
+          }, { merge: true })
+        }
+        let url = ""
+        if(response.actionIdentifier == "webhookAction"){
+          url = notifMetaData?.firebaseData?.webhook
         }else if(response.actionIdentifier == "webhookReply"){
-          fetch("https://notibot.kihtrak.com/?project=testt&body=test Body Yeet&title=fetch made")
-          // fetch(`${notifMetaData?.webhook}${notifMetaData?.webhookParamName}=${userText}`).catch((e)=>{
-          //   console.warn(e);
-          //   Alert.Alert(e)
-          // })
+          url = notifMetaData?.firebaseData?.webhook + response?.userText
         }else{ // response.actionIdentifier == Notifications.DEFAULT_ACTION_IDENTIFIER
-          // Alert.alert("jump to notif")
-          if(mainStackLoadedRef.current.loaded)
-            navigation.linkTo(`Main/Projects/Notification?projTitle=${notifMetaData?.project}&timestamp=${notifMetaData?.timestamp}`)
-          else
-            mainStackLoadedRef.current.queue = ()=> navigation.linkTo(`Main/Projects/Notification?projTitle=${notifMetaData?.project}&timestamp=${notifMetaData?.timestamp}`)
-          // linkTo(`/Main/Projects/Notification?projTitle=${notifMetaData?.project}&timestamp=${notifMetaData?.timestamp}`)
+          return openLinkInApp(encodeURI(`Main/Projects/Notification?projTitle=${notifMetaData?.project}&timestamp=${notifMetaData?.firebaseData?.timestamp}`))
         }
+        const fetchCallback = (resStr, errored) =>{
+          showMessage({
+            message: errored?"Webhook call failed!":"Webhook called!",
+            type: errored?"danger":"success",
+            hideStatusBar:true,
+          });
+          openLinkInApp(encodeURI(`Main/Projects/Notification?projTitle=${notifMetaData?.project}&timestamp=${notifMetaData?.firebaseData?.timestamp}&resValue=${resStr}`))
+        }
+        fetch(url).then(res=>res.text())
+        .then(fetchCallback)
+        .catch((e)=>fetchCallback(e.toString(), true))
       });
-
-      Notifications.setNotificationCategoryAsync("standard",[
-        {
-          identifier:"deleteNotif", 
-          buttonTitle: "Delete",
-          options: {
-            opensAppToForeground:false,
-            isAuthenticationRequired:true,
-            isDestructive:true
-          }
-        }
-      ],{previewPlaceholder:"NotiBot Notification"})
-      Notifications.setNotificationCategoryAsync("webhookbutton",[
-        {
-          identifier:"webhookAction", 
-          buttonTitle: "Trigger Webhook Action",
-          options: {
-            opensAppToForeground:false,
-            isAuthenticationRequired:true,
-            isDestructive:false
-          }
-        },
-        {
-          identifier:"deleteNotif", 
-          buttonTitle: "Delete",
-          options: {
-            opensAppToForeground:false,
-            isAuthenticationRequired:true,
-            isDestructive:true
-          }
-        }
-      ],{previewPlaceholder:"NotiBot Notification With Webhook Action"})
-      Notifications.setNotificationCategoryAsync("webhooktext",[
-        {
-          identifier:"webhookReply", 
-          buttonTitle: "Send Text to Webhook",
-          textInput:{
-            submitButtonTitle:"send",
-            placeholder:""
-          },
-          options: {
-            opensAppToForeground:false,
-            isAuthenticationRequired:true,
-            isDestructive:false
-          }
-        },
-        {
-          identifier:"deleteNotif", 
-          buttonTitle: "Delete",
-          options: {
-            opensAppToForeground:false,
-            isAuthenticationRequired:true,
-            isDestructive:true
-          }
-        }
-      ],{previewPlaceholder:"NotiBot Notification With Webhook Reply"})
-    } //else {
+    }
+       //else {
       //alert('Must use physical device for Push Notifications');
       //}
     return () => {
@@ -243,7 +196,14 @@ export default function App() {
             for(let invCallback of callbacks.current[projectName])
               invCallback(doc.data())
           }
-        })
+        },
+        error=>{
+          // console.warn(error)
+          projectsData.current[projectName] = null
+          for(let invCallback of callbacks.current[projectName])
+            invCallback(null)
+        }
+        )
       }
     },
     stopListeningToProject: (projectName, callback)=>{
@@ -261,15 +221,6 @@ export default function App() {
     }
   }
 
-  const ProjectComponent = (props)=>{
-    const title = props?.route?.params?.title
-    if(!title && !isLargeScreen){
-      useEffect(()=>props.navigation.openDrawer(),[true])
-      return(<Loading/>)
-    }
-    return(<Project {...props}/>)
-  }
-
   const ProjectStack = () => {
     return (<Stack.Navigator 
       screenOptions={{
@@ -282,7 +233,7 @@ export default function App() {
         },
       }}
     >
-      <Stack.Screen name="Project" component={ProjectComponent}/>
+      <Stack.Screen name="Project" component={Project}/>
       <Stack.Screen name="ProjectOptions" component={ProjectOptions} />
       <Stack.Screen name="Notification" component={Notification} />
     </Stack.Navigator>)
@@ -315,7 +266,7 @@ export default function App() {
             path: '',
             screens: {
               Project: 'project/:title',
-              Notification: 'notification/:projTitle/:timestamp/:index?',
+              Notification: 'notification/:projTitle/:timestamp/:resValue?/:index?',
             }
           }
         },
@@ -356,10 +307,10 @@ export default function App() {
                 },
               }}
             >
-              {state.isLoading ? (
+              {state.isLoading ? ( 
                 <Stack.Screen name="Splash" component={Loading} options={{ headerShown:false }}/>
               ) : state.isSignedIn == false ? <>
-                <Stack.Screen
+                 <Stack.Screen
                   name="SignIn"
                   component={Login}
                   options={{
@@ -377,8 +328,7 @@ export default function App() {
                     animationTypeForReplace: !state.isSignedIn ? 'pop' : 'push',
                   }}
                 />
-                
-              </> : <><Stack.Screen name="Main" component={DrawerNav} options={{ headerShown:false }}/>
+                </> : <><Stack.Screen name="Main" component={DrawerNav} options={{ headerShown:false }}/>
                   <Stack.Screen name="Settings" component={Settings} />
                 {/* <Stack.Screen name="Projects" component={Home} /> */}
               

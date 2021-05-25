@@ -7,6 +7,7 @@ import { useLinkTo  } from '@react-navigation/native';
 
 import { ProjectsContext, DeepLinkContext } from '../utils/contexts'
 import { Alert } from 'react-native';
+import Loading from './Loading';
 const prefix = Linking.createURL('/');
 
 export default function Project({ navigation, route }){
@@ -15,22 +16,7 @@ export default function Project({ navigation, route }){
     const [notifications,updateNotifications] = useState(projectsData?.[projTitle]?.Notifications) //projectsData[projTitle] is guaranteed to exist due to previous screen
     const dimensions = useWindowDimensions();
     const isLargeScreen = dimensions.width >= 768;
-    const initialDeepLink = useContext(DeepLinkContext)
-    const linkTo = useLinkTo();
-
-    React.useEffect(()=>{
-      if(initialDeepLink){
-        const parsedDeepLink = initialDeepLink.substring(prefix.length-1)
-        console.log("deeplink:"+parsedDeepLink)
-        // Alert.alert(prefix + " - "+ initialDeepLink)
-        // Alert.alert(parsedDeepLink)
-        if(parsedDeepLink && parsedDeepLink.length>1 && parsedDeepLink[0]=='/'){
-          // Alert.alert("linkTo")
-          linkTo(parsedDeepLink)
-        }
-      }
-    },[true])
-
+    
     React.useEffect(()=>{
       if(projTitle){
         //updateNotifications(projectsData[projTitle].Notifications)
@@ -38,7 +24,8 @@ export default function Project({ navigation, route }){
           if(newData)
             updateNotifications(newData.Notifications)
           else
-            navigation.goBack()
+            // navigation.goBack()
+            navigation.openDrawer()
         }
         listenToProject(projTitle,handleProjUpdate, true)
         return ()=>stopListeningToProject(projTitle, handleProjUpdate)
@@ -91,15 +78,21 @@ export default function Project({ navigation, route }){
     const getSubtitle = (item) =>{
         if(item.subtitle)
             return item.subtitle
-        if(item.data)
-            return JSON.stringify(item.data)
+        if(item.body)
+            return item.body
         return null
     }
 
-    if(!projTitle)
+
+    if(!projTitle){
+      // if(!isLargeScreen){
+      //   navigation.openDrawer()
+      //   return(<Loading/>)
+      // }
       return(<View style={styles.container}>
         <Text style={{fontSize:15, textAlign:"center"}}>Select a project</Text>
       </View>)
+    }
 
     return (
         <View style={styles.container}>
@@ -110,8 +103,8 @@ export default function Project({ navigation, route }){
               ()=>navigation.navigate("Notification",{index: (notifications.length-1-index), timestamp: item.timestamp, projTitle})
             }>
                 <ListItem.Content>
-                <ListItem.Title>{item.title.substring(0,20)}</ListItem.Title>
-                <ListItem.Subtitle>{getSubtitle(item).substring(0,20)}</ListItem.Subtitle>
+                <ListItem.Title>{item.title.substring(0,30)}</ListItem.Title>
+                <ListItem.Subtitle>{getSubtitle(item).substring(0,40)}</ListItem.Subtitle>
                 <ListItem.Subtitle left>{new Date(item.timestamp).toLocaleString()}</ListItem.Subtitle>
                 </ListItem.Content>
                 <ListItem.Chevron/>

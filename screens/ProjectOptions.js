@@ -7,7 +7,7 @@ import firebase from 'firebase';
 import { ProjectsContext } from '../utils/contexts'
 import { groups } from '../utils/constants'
 
-const groupDescriptions = ["Full Access", "Can't delete project or edit team members", "Can only view data, can't respond to API requests or delete notifications"]
+const groupDescriptions = ["Full Access", "Can't delete project or edit team members", "Can only view data, can't delete notifications"]
 
 export default function Home({ navigation, route }) {
     const { projectsData, listenToProject, stopListeningToProject } = React.useContext(ProjectsContext);
@@ -24,31 +24,34 @@ export default function Home({ navigation, route }) {
 
     const projectInfo = projectsData[projTitle]
 
+    const currentUserUid = firebase.auth().currentUser.uid;
+
     React.useLayoutEffect(() => {
         const handleProjUpdate = (newData) => {
-            const currentUserUid = firebase.auth().currentUser.uid;
             console.log("triggered")
             if (newData) {
                 let tempUsers = []
-                for (let groupName of groups)
-                    if (projectInfo[groupName])
-                        for (let uid of projectInfo[groupName]) {
-                            //console.log(uid)
+                for (let groupName of groups){
+                    console.log(groupName)
+                    if (newData[groupName])
+                        for (let uid of newData[groupName]) {
+                            console.log(uid)
                             if (uid == currentUserUid)
                                 setCurrentGroupNum(groups.indexOf(groupName))
                             if (!profileInfoMap.current[uid])
                                 fetch("https://notibot-server.herokuapp.com/getProfileInfo", { body: JSON.stringify({ uid }), method: 'POST', headers: { "Content-Type": "application/json" } }).then((res) => res.json()).then((profile) => {
                                     profileInfoMap.current[uid] = profile
                                     //console.log(profile)
-                                    setUsers([...users, { group: groupName, profile: profileInfoMap.current[uid] }])
+                                    setUsers((users)=>[...users, { group: groupName, profile: profileInfoMap.current[uid] }])
                                 })
                             else {
                                 tempUsers.push({ group: groupName, profile: profileInfoMap.current[uid] }) // Don't re-render until finished
                             }
                         }
+                }
                 if (tempUsers.length > 0)
                     setUsers(tempUsers)
-                if (currentGroupNum == 0 && projectInfo[groups[0]].length == 1)
+                if (currentGroupNum == 0 && newData[groups[0]].length == 1)
                     setCanLeave(false)
                 else
                     setCanLeave(true)
@@ -106,20 +109,38 @@ export default function Home({ navigation, route }) {
         );
     }
 
-    const addUser = (email) => {
+    const addUser = () => {
         fetch("https://notibot-server.herokuapp.com/getProfileByEmail", { body: JSON.stringify({ email }), method: 'POST', headers: { "Content-Type": "application/json" } })
             .then((res) => res.json()).then((profile) => {
                 console.log(profile)
-            })
+                return firebase.auth().currentUser.getIdToken(true)
+                    .then((idToken) => fetch("https://notibot-server.herokuapp.com/addUserToProject", { 
+                        body: JSON.stringify({ idToken, project: projTitle, uid:profile.uid }), 
+                        method: 'POST', 
+                        headers: { "Content-Type": "application/json" } 
+                    }))
+            }).then(()=>setVisible(false)).catch(e => Alert.alert(`An error occurred while attempting to add ${email} to the project`))
+    }
+
+    const removeUser = (email) => {
+        fetch("https://notibot-server.herokuapp.com/getProfileByEmail", { body: JSON.stringify({ email }), method: 'POST', headers: { "Content-Type": "application/json" } })
+            .then((res) => res.json()).then((profile) => {
+                console.log(profile)
+                return firebase.auth().currentUser.getIdToken(true)
+                    .then((idToken) => fetch("https://notibot-server.herokuapp.com/removeUserFromProject", { 
+                        body: JSON.stringify({ idToken, project: projTitle, uid:profile.uid }), 
+                        method: 'POST', 
+                        headers: { "Content-Type": "application/json" } 
+                    }))
+            }).catch(e => Alert.alert(`An error occurred while attempting to remove ${email} from the project`))
     }
 
     const leaveProject = async () => {
-        const currentUserUid = firebase.auth().currentUser.uid;
         const updateObj = {}
         groups.forEach(el => { updateObj[el] = firebase.firestore.FieldValue.arrayRemove(currentUserUid) })
-        await db.collection('Projects').doc(projectName).update(updateObj)
+        await db.collection('Projects').doc(projTitle).update(updateObj)
         await db.collection('Users').doc(currentUserUid).update({
-            'Projects': firebase.firestore.FieldValue.arrayRemove(projectName)
+            'Projects': firebase.firestore.FieldValue.arrayRemove(projTitle)
         })
     }
 
@@ -143,7 +164,7 @@ export default function Home({ navigation, route }) {
                         </Text>}
                     <Button
                         title="Add User"
-                        onPress={() => { }}
+                        onPress={addUser}
                     />
                 </View>
             </Overlay>
@@ -153,14 +174,45 @@ export default function Home({ navigation, route }) {
                         let userElements = []
                         for(let itemIndex in users){
                             let item = users[itemIndex]
-                            userElements.push(<ListItem style={[styles.listItem, {zIndex: -99*itemIndex}]} bottomDivider topDivider>
-                                <Avatar source={{ uri: item.profile.photoURL }} rounded />
+                            let controller
+                            userElements.push(<ListItem key={item.profile.email} style={[styles.listItem, {zIndex: -1*itemIndex}]} bottomDivider topDivider>
+                                <Avatar source={{ uri: item.profile.photoURL }} title={item.profile.email.substring(0,2)} rounded />
                                 <ListItem.Content>
                                     <ListItem.Title>{item.profile.displayName}</ListItem.Title>
                                     <ListItem.Subtitle adjustsFontSizeToFit numberOfLines={1}>{item.profile.email}</ListItem.Subtitle>
                                 </ListItem.Content>
-                                <DropDownPicker disabled={currentGroupNum < 0} items={groups.map(el => ({ label: el, value: el }))} defaultValue={item.group} containerStyle={{ flexGrow: .5 }} itemStyle={{overflow: "visible"}}/>
+                                <DropDownPicker disabled={currentGroupNum > 0 || (currentUserUid == item.profile.uid && !canLeave)} items={[...groups, "Remove"].map(el => ({ label: el, value: el }))} defaultValue={item.group} containerStyle={{ flexGrow: .5 }} itemStyle={{overflow: "visible"}} controller={instance => controller = instance} onChangeItem={(el)=>{
+                                    const {value:newValue} = el
+                                    console.log(newValue)
+                                    if(newValue == "Remove"){
+                                        Alert.alert(`Remove ${item.profile.email}`, `Are you sure you want remove ${item.profile.email} from this project?`,
+                                            [{
+                                                text: 'Remove',
+                                                onPress: async () => {
+                                                    removeUser(item.profile.email)
+                                                },
+                                                style: "destructive"
+                                            }, 
+                                            { text: 'Cancel', style: 'cancel',
+                                                onPress: ()=>{
+                                                    controller.selectItem(item.group)
+                                                }
+                                            }],
+                                            { cancelable: true, onDismiss:()=>{
+                                                controller.selectItem(item.group)
+                                            }}
+                                        );
+                                    }else{
+                                        const updateObj = {}
+                                        groups.forEach(el => { updateObj[el] = firebase.firestore.FieldValue.arrayRemove(item.profile.uid) })
+                                        updateObj[newValue] = firebase.firestore.FieldValue.arrayUnion(item.profile.uid)
+                                        db.collection('Projects').doc(projTitle).update(updateObj)
+                                    }
+                                }}/>
                             </ListItem>)
+                        }
+                        if(userElements.length==0){
+                            return <ActivityIndicator size="large" style={{padding:10}}/>
                         }
                         return userElements
                     })()}
@@ -207,13 +259,13 @@ export default function Home({ navigation, route }) {
                     onPress={deleteNotifications}
                 />
                 <Button
-                    disabled={currentGroupNum <= 1}
+                    disabled={!canLeave}
                     containerStyle={{ marginTop: 20, }}
                     title={`Leave Project`}
                     buttonStyle={styles.leaveButton}
                     onPress={leaveProject}
                 />
-                {canLeave && <Text style={styles.explanationText}>You are the only owner, you can't leave until appointing a new owner</Text>}
+                {!canLeave && <Text style={styles.explanationText}>You are the only owner, you can't leave until appointing a new owner</Text>}
                 <Button
                     disabled={currentGroupNum > 0}
                     containerStyle={{ marginTop: 20, }}
@@ -247,6 +299,7 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         flexDirection: "row",
         padding: 10,
+        zIndex: -99
     },
     groupTitle: {
         marginRight: 10,

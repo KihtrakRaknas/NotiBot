@@ -2,7 +2,7 @@
   "expo": {
     "name": "NotiBot",
     "slug": "NotiBot",
-    "version": "1.0.1",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -20,6 +20,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.kihtrak.NOTIBOT",
       "googleServicesFile": "./GoogleService-Info.plist",
+      "requireFullScreen": false,
       "config": {
         "googleSignIn": {
           "reservedClientId": "com.googleusercontent.apps.896187396809-gc46s18rgvue2qq9cgh7ul03quflo015"

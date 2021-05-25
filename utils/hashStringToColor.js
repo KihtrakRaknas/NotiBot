@@ -5,8 +5,8 @@ export default (string)=>{
     // '}' is 125
     // ' ' is 32
     total%=126
-    total-=32
-    total/=(126-32)
+    // total-=32
+    total/=(126)
     const firstPartOfString = '#' + total.toString(16).substr(2, 6)
     console.log(firstPartOfString)
     return [ firstPartOfString + "00", firstPartOfString + "30"]

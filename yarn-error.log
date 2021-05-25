@@ -1,5 +1,5 @@
 Arguments: 
-  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js add react-code-blocks
+  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js add @react-navigation/stack
 
 PATH: 
   C:\Program Files\AdoptOpenJDK\jdk-13.0.2.8-hotspot\bin;C:\Program Files\Oculus\Support\oculus-runtime;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\ProgramData\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\Git\cmd;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Microsoft VS Code\bin;C:\Program Files\Git LFS;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\SourceGear\Common\DiffMerge\;C:\Program Files (x86)\Yarn\bin\;C:\ProgramData\chocolatey\bin;C:\Program Files\nodejs\;C:\Program Files (x86)\Certbot\bin;C:\Program Files\MATLAB\R2020a\bin;C:\Users\karth\.windows-build-tools\python27\;C:\Users\karth\AppData\Roaming\npm\node_modules\npm\node_modules\npm-lifecycle\node-gyp-bin;C:\Users\karth\AppData\Roaming\npm\node_modules\windows-build-tools\node_modules\.bin;C:\Users\karth\AppData\Roaming\npm\node_modules\.bin;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\ProgramData\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\Git\cmd;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Microsoft VS Code\bin;C:\Program Files\Git LFS;C:\Program Files\nodejs\;C:\Users\karth\Miniconda3;C:\Users\karth\Miniconda3\Library\mingw-w64\bin;C:\Users\karth\Miniconda3\Library\usr\bin;C:\Users\karth\Miniconda3\Library\bin;C:\Users\karth\Miniconda3\Scripts;C:\Users\karth\AppData\Local\Programs\Python\Python37-32\Scripts\;C:\Users\karth\AppData\Local\Programs\Python\Python37-32\;C:\Users\karth\AppData\Local\Microsoft\WindowsApps;C:\Users\karth\AppData\Local\GitHubDesktop\bin;C:\Users\karth\AppData\Local\atom\bin;C:\Users\karth\Documents\src\flutter\bin;C:\Users\karth\Downloads\swigwin-3.0.12.zip\swigwin-3.0.12\swig;C:\Program Files\heroku\bin;C:\Users\karth\AppData\Local\Programs\PROS\cli;C:\Users\karth\AppData\Local\Programs\PROS\toolchain\usr\bin;C:\Users\karth\AppData\Local\Programs\PROS\cquery;C:\Users\karth\AppData\Local\Microsoft\WindowsApps;C:\Program Files\Java\jdk-14.0.1\bin;C:\Users\karth\AppData\Local\Programs\MiKTeX 2.9\miktex\bin\x64\;C:\Users\karth\AppData\Local\Programs\Microsoft VS Code\bin;C:\php;C:\Users\karth\AppData\Local\Google\Cloud SDK\google-cloud-sdk\bin;C:\Users\karth\AppData\Local\Yarn\bin;C:\Users\karth\AppData\Local\Android\Sdk\tools;C:\Users\karth\AppData\Local\Android\Sdk\tools\bin;C:\Users\karth\AppData\Local\Android\Sdk\platform-tools;C:\Users\karth\AppData\Roaming\npm;C:\Users\karth\Downloads\ngrok-stable-windows-amd64;C:\Users\karth\Downloads\ethminer-0.19.0-alpha.0-cuda10.0-windows-amd64\bin;
@@ -36,12 +36,15 @@ npm manifest:
       "expo-application": "~3.1.2",
       "expo-auth-session": "~3.2.3",
       "expo-constants": "~10.1.3",
-      "expo-google-app-auth": "^8.1.4",
+      "expo-google-app-auth": "^8.1.7",
+      "expo-google-sign-in": "~9.1.0",
       "expo-linear-gradient": "~9.1.0",
+      "expo-linking": "~2.2.3",
       "expo-notifications": "~0.11.6",
       "expo-permissions": "~12.0.1",
       "expo-random": "~11.1.2",
       "expo-status-bar": "~1.0.4",
+      "expo-web-browser": "~9.1.0",
       "firebase": "8.2.3",
       "modal-react-native-web": "^0.2.0",
       "patch-package": "^6.2.2",
@@ -4119,11 +4122,12 @@ Lockfile:
       snapdragon "^0.8.1"
       to-regex "^3.0.1"
   
-  expo-app-auth@~9.3.0:
-    version "9.3.0"
-    resolved "https://registry.yarnpkg.com/expo-app-auth/-/expo-app-auth-9.3.0.tgz#072bd3faa8a34ff50f700627bd4eb8480629b915"
-    integrity sha512-f8OdQDNmC5vSdBWzwtic5pq+bmtSCYGU1KeVhKV3W8VgGIgVx40Q72q3M+SMs68bz4RCuC1g7LOGTOBWzXIuNw==
+  expo-app-auth@~10.1.2:
+    version "10.1.2"
+    resolved "https://registry.yarnpkg.com/expo-app-auth/-/expo-app-auth-10.1.2.tgz#3fa0375e8c57e1911468da33a8aebe0bb62ac86e"
+    integrity sha512-scYsgp+PIcM1zq+tOK6gpeuPsC0FnbMHfvRx5KxiY5Z+0M2dG/ehkgw9aOHuZD+v+TVBRUEfd6HAapI3e63gIw==
     dependencies:
+      "@expo/config-plugins" "^1.0.18"
       invariant "^2.2.4"
   
   expo-application@~3.1.2:
@@ -4187,12 +4191,19 @@ Lockfile:
     dependencies:
       fontfaceobserver "^2.1.0"
   
-  expo-google-app-auth@^8.1.4:
-    version "8.1.4"
-    resolved "https://registry.yarnpkg.com/expo-google-app-auth/-/expo-google-app-auth-8.1.4.tgz#e87a548ee5e32c5951803781efcadf55eab7ad0d"
-    integrity sha512-2hXZCXEo7Dg3SDcc73MDniL+tJdwUzeBxTvXTGpnTKNF3JakuehLnx9ALuuEU86MKvM49/a3FiflhfEiWZ5qDw==
+  expo-google-app-auth@^8.1.7:
+    version "8.1.7"
+    resolved "https://registry.yarnpkg.com/expo-google-app-auth/-/expo-google-app-auth-8.1.7.tgz#41154838142726ac02e06f8a7a6505c21596efa0"
+    integrity sha512-BHYZPmry/Mqdti8VZa6b5KsyP/t34J8kKjHXSqznZzdR2UnzfLkPc53w2f0csNUwCD1C3jP8whtsLqIXV+ynkA==
     dependencies:
-      expo-app-auth "~9.3.0"
+      expo-app-auth "~10.1.2"
+  
+  expo-google-sign-in@~9.1.0:
+    version "9.1.0"
+    resolved "https://registry.yarnpkg.com/expo-google-sign-in/-/expo-google-sign-in-9.1.0.tgz#9d52c8eaf8ab78bd3c579dea5c730b33026b22f8"
+    integrity sha512-IxbTU3R6bfgiIhiFIP2n52iRNtv7IE22pZVQCVVo3xMTMj5kmafh25daPYOEqkBB3G2AQofY8hCxD4gCLW7GnQ==
+    dependencies:
+      invariant "^2.2.4"
   
   expo-keep-awake@~9.1.2:
     version "9.1.2"

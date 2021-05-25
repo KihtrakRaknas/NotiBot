@@ -67,7 +67,8 @@ export default function Login({ navigation }) {
       expoClientId: '896187396809-tn4obhk9l23t5u8uhmrspmn89iph7lr0.apps.googleusercontent.com',
       webClientId: '896187396809-5tbhq093deljombkbflt9c5mrfu7qvum.apps.googleusercontent.com',
       // clientId: '896187396809-89ltb58u1or8fnetjgn90btpmb4ghmaq.apps.googleusercontent.com',
-      androidClientId: '896187396809-i55h6jach0jrja5studqj9dr2iiuhf8a.apps.googleusercontent.com'
+      androidClientId: '896187396809-i55h6jach0jrja5studqj9dr2iiuhf8a.apps.googleusercontent.com',
+      iosClientId: "896187396809-2ks3dj1dogegfsc8a9jr32s33tt4rben.apps.googleusercontent.com",
     },
   );
 
@@ -122,7 +123,7 @@ export default function Login({ navigation }) {
         </TouchableOpacity>
         <SocialIcon
           title={"Sign In With Google"}
-          disabled={!request && Constants.appOwnership != "standalone"}
+          disabled={Constants.appOwnership != "standalone" && !request}
           button={true}
           light
           style={styles.submitButton}
@@ -153,7 +154,7 @@ export default function Login({ navigation }) {
         <Button
           titleStyle={{color:"white"}}//"#d1faff"
           title="Don't have an account? Sign Up"
-          disabled={!request && Constants.appOwnership != "standalone"}
+          disabled={Constants.appOwnership != "standalone" && !request}
           onPress={() => navigation.navigate('SignUp',{email})}
           type="clear"
         />
