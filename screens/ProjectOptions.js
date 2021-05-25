@@ -136,9 +136,9 @@ export default function Home({ navigation, route }) {
     }
 
     const leaveProject = async () => {
-        const updateObj = {}
-        groups.forEach(el => { updateObj[el] = firebase.firestore.FieldValue.arrayRemove(currentUserUid) })
-        await db.collection('Projects').doc(projTitle).update(updateObj)
+        await db.collection('Projects').doc(projTitle).update({
+            [groups[currentGroupNum]]: firebase.firestore.FieldValue.arrayRemove(currentUserUid)
+        })
         await db.collection('Users').doc(currentUserUid).update({
             'Projects': firebase.firestore.FieldValue.arrayRemove(projTitle)
         })

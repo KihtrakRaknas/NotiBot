@@ -123,13 +123,13 @@ export default function Login({ navigation }) {
         </TouchableOpacity>
         <SocialIcon
           title={"Sign In With Google"}
-          disabled={Constants.appOwnership != "standalone" && !request}
+          disabled={(Constants.appOwnership != "standalone" || Platform.OS == 'web') && !request}
           button={true}
           light
           style={styles.submitButton}
           type={"google"}
           onPress={async ()=>{
-            if(Constants.appOwnership != "standalone") {
+            if(Constants.appOwnership != "standalone" || Platform.OS == 'web') {
               console.log("promting async")
               promptAsync()
             } else {
@@ -154,7 +154,7 @@ export default function Login({ navigation }) {
         <Button
           titleStyle={{color:"white"}}//"#d1faff"
           title="Don't have an account? Sign Up"
-          disabled={Constants.appOwnership != "standalone" && !request}
+          disabled={(Constants.appOwnership != "standalone" || Platform.OS != 'web') && !request}
           onPress={() => navigation.navigate('SignUp',{email})}
           type="clear"
         />

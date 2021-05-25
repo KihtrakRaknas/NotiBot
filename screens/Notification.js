@@ -73,8 +73,8 @@ export default function Notification({ navigation, route }){
     React.useLayoutEffect(() => {
         navigation.setOptions({
             title: notification?.title,
-            headerRight: () => (
-                <Button
+            headerRight: () => canDelete
+                && <Button
                     disabled={!canDelete}
                     icon={{
                         name: "trash-outline",
@@ -86,7 +86,7 @@ export default function Notification({ navigation, route }){
                     titleStyle={styles.headerButtonTitle}
                     onPress={deleteNotification}
                 />
-            ),
+            ,
         });
     }, [navigation, canDelete, notification]);
 
