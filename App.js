@@ -10,6 +10,7 @@ import * as Linking from 'expo-linking';
 import { useLinkTo  } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import useRootNavigation from './utils/useRootNavigation'
+import * as SplashScreen from 'expo-splash-screen';
 
 import Loading from './screens/Loading'
 import Login from './screens/Login'
@@ -56,6 +57,7 @@ export default function App() {
   const responseListener = useRef();
   const mainStackLoadedRef = useRef({
     mainStackLoaded: () =>{
+      setTimeout(()=>SplashScreen.hideAsync(),500)
       mainStackLoadedRef.current.loaded = true
       if(mainStackLoadedRef.current.queue)
         mainStackLoadedRef.current.queue()
@@ -165,11 +167,22 @@ export default function App() {
 
 
   React.useLayoutEffect(() => {
-    firebase.auth().onAuthStateChanged((user) => {
-      console.log(`Auth: ${!!user}`)
-      dispatch({ type: 'SIGN_IN', isSignedIn: !!user });
-    })
+    try{
+      firebase.auth().onAuthStateChanged((user) => {
+        console.log(`Auth: ${!!user}`)
+        dispatch({ type: 'SIGN_IN', isSignedIn: !!user });
+        if(user){
+          setTimeout(()=>SplashScreen.hideAsync(),3000)
+        }
+      })
+    }catch(e){
+      SplashScreen.hideAsync()
+    }
   }, []);
+
+  React.useLayoutEffect(()=>{
+    SplashScreen.preventAutoHideAsync();
+  },[true])
 
   //const projectsData = {}
 

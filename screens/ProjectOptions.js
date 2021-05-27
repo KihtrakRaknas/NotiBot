@@ -31,13 +31,14 @@ export default function Home({ navigation, route }) {
             console.log("triggered")
             if (newData) {
                 let tempUsers = []
+                let tempCurrentGroupNum
                 for (let groupName of groups){
                     console.log(groupName)
                     if (newData[groupName])
                         for (let uid of newData[groupName]) {
                             console.log(uid)
                             if (uid == currentUserUid)
-                                setCurrentGroupNum(groups.indexOf(groupName))
+                                tempCurrentGroupNum = groups.indexOf(groupName)
                             if (!profileInfoMap.current[uid])
                                 fetch("https://notibot-server.herokuapp.com/getProfileInfo", { body: JSON.stringify({ uid }), method: 'POST', headers: { "Content-Type": "application/json" } }).then((res) => res.json()).then((profile) => {
                                     profileInfoMap.current[uid] = profile
@@ -49,12 +50,13 @@ export default function Home({ navigation, route }) {
                             }
                         }
                 }
+                setCurrentGroupNum(tempCurrentGroupNum)
                 if (tempUsers.length > 0)
                     setUsers(tempUsers)
-                if (currentGroupNum == 0 && newData[groups[0]].length == 1)
-                    setCanLeave(false)
-                else
+                if (tempCurrentGroupNum != 0 || newData[groups[0]].length > 1)
                     setCanLeave(true)
+                else
+                    setCanLeave(false)
             } else
                 navigation.goBack()
         }

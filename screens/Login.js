@@ -15,6 +15,7 @@ export default function Login({ navigation }) {
   const [password, setPassword] = React.useState('');
   const [errorMessage, setErrorMessage] = React.useState(null);
   
+  React.useEffect(()=>SplashScreen.hideAsync(),[true])
 
   function handleLogin() {
     firebase

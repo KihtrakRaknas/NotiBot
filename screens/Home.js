@@ -10,9 +10,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { ProjectsContext, DeepLinkContext, MainStackLoadedContext } from '../utils/contexts'
 import { showMessage, hideMessage } from "react-native-flash-message";
 import * as Linking from 'expo-linking';
-import { useLinkTo  } from '@react-navigation/native';
+import { useFocusEffect, useLinkTo } from '@react-navigation/native';
 import { Alert } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
+import * as SplashScreen from 'expo-splash-screen';
 
 const prefix = Linking.createURL('/');
 

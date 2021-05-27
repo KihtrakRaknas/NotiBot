@@ -45,7 +45,7 @@ export default function SignUp({ navigation, route}) {
           </View>
           <View style={styles.textInputBox}>
             <TextInput
-              //secureTextEntry
+              secureTextEntry
               placeholder="Password"
               placeholderTextColor="white"
               autoCapitalize="none"
