@@ -163,7 +163,7 @@ export default function Home({ navigation }) {
       
   }, [true])
 
-  const getTimeStamp = (item) => projectsData[item].Notifications && projectsData[item].Notifications.length > 0 ? projectsData[item].Notifications[projectsData[item].Notifications.length - 1].timestamp : 0
+  const getTimeStamp = (item) => projectsData?.[item]?.Notifications && projectsData[item].Notifications.length > 0 ? projectsData[item].Notifications[projectsData[item].Notifications.length - 1].timestamp : 0
 
   React.useLayoutEffect(()=>{
     const parsedDeepLink = initialDeepLink?.substring(prefix.length-1)
