@@ -2,7 +2,7 @@
   "expo": {
     "name": "NotiBot",
     "slug": "NotiBot",
-    "version": "1.0.3",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -28,6 +28,7 @@
       }
     },
     "android": {
+      "versionCode": 1,
       "package": "com.kihtrak.NOTIBOT",
       "googleServicesFile": "./google-services.json",
       "useNextNotificationsApi":true,

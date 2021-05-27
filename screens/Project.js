@@ -8,6 +8,7 @@ import { useLinkTo  } from '@react-navigation/native';
 import { ProjectsContext, DeepLinkContext } from '../utils/contexts'
 import { Alert } from 'react-native';
 import Loading from './Loading';
+import * as WebBrowser from 'expo-web-browser';
 const prefix = Linking.createURL('/');
 
 export default function Project({ navigation, route }){
@@ -80,7 +81,7 @@ export default function Project({ navigation, route }){
             return item.subtitle
         if(item.body)
             return item.body
-        return null
+        return ""
     }
 
 
@@ -112,7 +113,9 @@ export default function Project({ navigation, route }){
             keyExtractor={item => item.title+item.timestamp}
             ListEmptyComponent = {
               <View style={{flex:1,flexGrow:1,height:"100%",justifyContent: 'center',alignItems: 'center', padding:20 }}>
-                <Text style={{fontSize:15, textAlign:"center"}}>The project currently has no notifications</Text>
+                <Text style={{fontSize:15, textAlign:"center",marginVertical:20}}>The project currently has no notifications</Text>
+
+                <Button title="Learn how to send yourself a notification" titleStyle={{textDecorationLine:"underline"}} onPress={()=>WebBrowser.openBrowserAsync('https://notibotdocs.kihtrak.com',{controlsColor:'#FF0000',showTitle:true})} type="clear"/>
               </View>
             }
             />

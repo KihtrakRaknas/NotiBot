@@ -12,6 +12,7 @@ import { showMessage, hideMessage } from "react-native-flash-message";
 import * as Linking from 'expo-linking';
 import { useLinkTo  } from '@react-navigation/native';
 import { Alert } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
 
 const prefix = Linking.createURL('/');
 
@@ -264,42 +265,45 @@ export default function Home({ navigation }) {
         centerComponent={{ text: 'Projects', style: { color: 'white', fontSize: 18, fontWeight: "bold" } }}
         rightComponent={{ icon: "settings", type: 'feather', color: 'white', onPress: () => navigation.navigate('Settings'), size: 23 }}
       />
-      <LinearGradient colors={["#ff000000", "red"]} start={{ x: 0, y: .6 }} end={{ x: 0, y: 0 }} style={styles.container}>
+      <LinearGradient colors={["#ff000090", "red"]} start={{ x: 0, y: .6 }} end={{ x: 0, y: 0 }} style={styles.container}>
         {loading && <ActivityIndicator size="large" />}
-        {!loading && <FlatList
-          style={{ height: "100%", width: "100%" }}
-          data={projects}
-          renderItem={({ item }) => {
-            console.log(`item: ${item}`)
-            // console.log(projectsData)
-            // console.log(projectsData[item])
-            if (!projectsData[item]) {
-              console.warn(`Trying to render a project that doesn't exist item: ${item}`)
-              return null
-            }
-            return (<ListItem style={{ borderRadius: 20, marginVertical: 5 }} bottomDivider topDivider onPress={() => {
-              // navigation.closeDrawer()
-              navigation.navigate("Project", { title: item })
-            }}
-              linearGradientProps={{
-                colors: hashStringToColor(item),
-                start: { x: 1, y: 0 },
-                end: { x: 0, y: 0 },
+        {!loading && <>
+          <FlatList
+            style={{ height: "100%", width: "100%" }}
+            data={projects}
+            renderItem={({ item }) => {
+              console.log(`item: ${item}`)
+              // console.log(projectsData)
+              // console.log(projectsData[item])
+              if (!projectsData[item]) {
+                console.warn(`Trying to render a project that doesn't exist item: ${item}`)
+                return null
+              }
+              return (<ListItem style={{ borderRadius: 20, marginVertical: 5 }} bottomDivider topDivider onPress={() => {
+                // navigation.closeDrawer()
+                navigation.navigate("Project", { title: item })
               }}
-              ViewComponent={LinearGradient}
-              containerStyle={{ borderRadius: 20 }}
-              >
-              <Avatar size="large" rounded title={item.substring(0, 2)} />
-              <ListItem.Content>
-                <ListItem.Title style={styles.listItemTitle}>{item}</ListItem.Title>
-                <ListItem.Subtitle style={styles.listItemSubtitle}>{projectsData[item].Notifications && projectsData[item].Notifications.length > 0 ? projectsData[item].Notifications[projectsData[item].Notifications.length - 1].title : `No notifications yet!`}</ListItem.Subtitle>
-              </ListItem.Content>
-              <ListItem.Chevron />
-            </ListItem>)
-          }}
-          keyExtractor={item => item}
-          ListEmptyComponent={<View style={{ flex: 1, flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}><Text>You currently have no projects</Text><Button style={{ marginTop: 10 }} title="Create a new project" onPress={toggleOverlay} /></View>}
-        />}
+                linearGradientProps={{
+                  colors: hashStringToColor(item),
+                  start: { x: 1, y: 0 },
+                  end: { x: 0, y: 0 },
+                }}
+                ViewComponent={LinearGradient}
+                containerStyle={{ borderRadius: 20 }}
+                >
+                <Avatar size="large" rounded title={item.substring(0, 2)} />
+                <ListItem.Content>
+                  <ListItem.Title style={styles.listItemTitle}>{item}</ListItem.Title>
+                  <ListItem.Subtitle style={styles.listItemSubtitle}>{projectsData[item].Notifications && projectsData[item].Notifications.length > 0 ? projectsData[item].Notifications[projectsData[item].Notifications.length - 1].title : `No notifications yet!`}</ListItem.Subtitle>
+                </ListItem.Content>
+                <ListItem.Chevron />
+              </ListItem>)
+            }}
+            keyExtractor={item => item}
+            ListFooterComponent={Platform.OS == 'web' && <Button title="Open Docs" titleStyle={{textDecorationLine:"underline",color:"white"}} onPress={()=>WebBrowser.openBrowserAsync('https://notibotdocs.kihtrak.com',{controlsColor:'#FF0000',showTitle:true})} type="clear"/>}
+            ListEmptyComponent={<View style={{ flex: 1, flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}><Text style={{color:"white"}}>You currently have no projects</Text><Button style={{ marginTop: 10 }} title="Create a new project" onPress={toggleOverlay} /></View>}
+          />
+        </>}
       </LinearGradient>
     </>
   )
