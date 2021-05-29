@@ -163,17 +163,16 @@ export default function Home({ navigation }) {
       
   }, [true])
 
-  const getTimeStamp = (item) => projectsData?.[item]?.Notifications && projectsData[item].Notifications.length > 0 ? projectsData[item].Notifications[projectsData[item].Notifications.length - 1].timestamp : 0
 
   React.useLayoutEffect(()=>{
     const parsedDeepLink = initialDeepLink?.substring(prefix.length-1)
     if(parsedDeepLink && parsedDeepLink.length>1 && parsedDeepLink[0]=='/') {
       // Moved to a separate effect so it wont get triggers everytime projects changes
       // linkTo(parsedDeepLink)
-    }else if(numberOfProjects == projects.length && !mainStackLoadedRef.current.queue) { // projects have finished downloading
-      if(projects.length>0){
+    }else if(numberOfProjects === projects.length && !mainStackLoadedRef.current.queue) { // projects have finished downloading
+      if(projects.length>0 && mainStackLoadedRef.current.loaded == false){
         console.log("opening most recent project!")
-        navigation.navigate("Project", { title: projects[0] })
+        navigation.navigate("Project", { title: projects[0].title })
       }
       navigation.openDrawer()
     }
@@ -197,19 +196,21 @@ export default function Home({ navigation }) {
         console.log(doc.data());
         console.log("Current data: " + data);
         for (let projectName of data) {
-          if (!projects.includes(projectName)) {
+          if (!projects.some(projectObj=>projectObj.title == projectName)) {
             const subFunc = (data) => {
               setProjects(projects => {
-                if (projects.indexOf(projectName) == -1) {
-                  projects = [projectName, ...projects]
+                projects = projects.filter(projectObj=>projectObj.title!=projectName)
+                if (data) {
+                  projects = [{
+                    title: projectName,
+                    subtitle: data?.Notifications && data.Notifications.length > 0 ? data.Notifications[data.Notifications.length - 1].title : `No notifications yet!`,
+                    timestamp: data?.Notifications && data.Notifications.length > 0 ? data.Notifications[data.Notifications.length - 1].timestamp : 0
+                  }, ...projects]
                   console.log(`adding project to array: ${projectName}`)
-                }else if(!data){
-                  projects = projects.filter(project=>project!=projectName)
                 }
-                projects.sort((a, b) => getTimeStamp(b) - getTimeStamp(a))
+                projects.sort((a, b) => b?.timestamp - a?.timestamp)
                 setLoading(false)
-                console.log(projects)
-                console.log(`new projects: ${projects}`)
+                console.log(`new projects: ${JSON.stringify(projects)}`)
                 return projects
               })
 
@@ -274,34 +275,28 @@ export default function Home({ navigation }) {
             style={{ height: "100%", width: "100%" }}
             data={projects}
             renderItem={({ item }) => {
-              console.log(`item: ${item}`)
-              // console.log(projectsData)
-              // console.log(projectsData[item])
-              if (!projectsData[item]) {
-                console.warn(`Trying to render a project that doesn't exist item: ${item}`)
-                return null
-              }
+              console.log(`item: ${JSON.stringify(item)}`)
               return (<ListItem style={{ borderRadius: 20, marginVertical: 5 }} bottomDivider topDivider onPress={() => {
                 // navigation.closeDrawer()
-                navigation.navigate("Project", { title: item })
+                navigation.navigate("Project", { title: item.title })
               }}
                 linearGradientProps={{
-                  colors: hashStringToColor(item),
+                  colors: hashStringToColor(item.title),
                   start: { x: 1, y: 0 },
                   end: { x: 0, y: 0 },
                 }}
                 ViewComponent={LinearGradient}
                 containerStyle={{ borderRadius: 20 }}
                 >
-                <Avatar size="large" rounded title={item.substring(0, 2)} />
+                <Avatar size="large" rounded title={item.title.substring(0, 2)} />
                 <ListItem.Content>
-                  <ListItem.Title style={styles.listItemTitle}>{item}</ListItem.Title>
-                  <ListItem.Subtitle style={styles.listItemSubtitle}>{projectsData[item].Notifications && projectsData[item].Notifications.length > 0 ? projectsData[item].Notifications[projectsData[item].Notifications.length - 1].title : `No notifications yet!`}</ListItem.Subtitle>
+                  <ListItem.Title style={styles.listItemTitle}>{item.title}</ListItem.Title>
+                  <ListItem.Subtitle style={styles.listItemSubtitle}>{item.subtitle}</ListItem.Subtitle>
                 </ListItem.Content>
                 <ListItem.Chevron />
               </ListItem>)
             }}
-            keyExtractor={item => item}
+            keyExtractor={item => item.title}
             ListFooterComponent={Platform.OS == 'web' && <Button title="Open Docs" titleStyle={{textDecorationLine:"underline",color:"white"}} onPress={()=>WebBrowser.openBrowserAsync('https://notibotdocs.kihtrak.com',{controlsColor:'#FF0000',showTitle:true})} type="clear"/>}
             ListEmptyComponent={<View style={{ flex: 1, flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}><Text style={{color:"white"}}>You currently have no projects</Text><Button style={{ marginTop: 10 }} title="Create a new project" onPress={toggleOverlay} /></View>}
           />

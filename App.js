@@ -57,7 +57,7 @@ export default function App() {
   const responseListener = useRef();
   const mainStackLoadedRef = useRef({
     mainStackLoaded: () =>{
-      setTimeout(()=>SplashScreen.hideAsync(),500)
+      setTimeout(()=>SplashScreen.hideAsync().catch(),500)
       mainStackLoadedRef.current.loaded = true
       if(mainStackLoadedRef.current.queue)
         mainStackLoadedRef.current.queue()
@@ -126,14 +126,12 @@ export default function App() {
         .then(fetchCallback)
         .catch((e)=>fetchCallback(e.toString(), true))
       });
+
+      return () => {
+        Notifications.removeNotificationSubscription(notificationListener.current);
+        Notifications.removeNotificationSubscription(responseListener.current);
+      };
     }
-       //else {
-      //alert('Must use physical device for Push Notifications');
-      //}
-    return () => {
-      Notifications.removeNotificationSubscription(notificationListener.current);
-      Notifications.removeNotificationSubscription(responseListener.current);
-    };
   }, [true])
 
   const [state, dispatch] = React.useReducer(
@@ -172,11 +170,11 @@ export default function App() {
         console.log(`Auth: ${!!user}`)
         dispatch({ type: 'SIGN_IN', isSignedIn: !!user });
         if(user){
-          setTimeout(()=>SplashScreen.hideAsync(),3000)
+          setTimeout(()=>SplashScreen.hideAsync().catch(),3000)
         }
       })
     }catch(e){
-      SplashScreen.hideAsync()
+      SplashScreen.hideAsync().catch()
     }
   }, []);
 

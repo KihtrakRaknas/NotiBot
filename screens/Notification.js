@@ -103,7 +103,7 @@ export default function Notification({ navigation, route }){
             <ScrollView /*contentContainerStyle={styles.container}*/>
                 <SafeAreaView>
                     <View style={styles.headerView}>
-                        <Text h1>{notification.title}</Text>
+                        <Text h1 style={{textAlign:"center"}}>{notification.title}</Text>
                     </View>
                     <View style={{alignItems: "center"}}>
                         <View style={styles.subheaderView}>
@@ -111,7 +111,7 @@ export default function Notification({ navigation, route }){
                         </View>
                     </View>
                     <View style={styles.dataView}>
-                        <Text style={styles.textMargin}>{notification.body}</Text>
+                        <Text style={[styles.textMargin,{fontSize:25}]}>{notification.body}</Text>
                         {notification.webhook && <Text style={styles.textMargin}>Webhook: {notification.webhook}</Text>}
                     </View>
                     {notification.webhook && <View style={{alignItems: "center"}}>
@@ -148,6 +148,7 @@ const styles = StyleSheet.create({
   },
   headerView:{
     alignItems: "center",
+    margin:10
   },
   subheaderView: {
     flex: 1,

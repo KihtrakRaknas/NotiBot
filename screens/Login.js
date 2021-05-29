@@ -16,7 +16,7 @@ export default function Login({ navigation }) {
   const [password, setPassword] = React.useState('');
   const [errorMessage, setErrorMessage] = React.useState(null);
   
-  React.useEffect(()=>SplashScreen.hideAsync(),[true])
+  React.useEffect(()=>{SplashScreen.hideAsync()},[true])
 
   function handleLogin() {
     firebase
@@ -89,7 +89,7 @@ export default function Login({ navigation }) {
   }, [response]);
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={styles.container}>
+    <KeyboardAvoidingView behavior={Platform.OS=="ios"?"padding":"height"} style={styles.container}>
       <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Text style={styles.title}>Login</Text>
         {errorMessage &&

@@ -7,7 +7,7 @@
     "icon": "./assets/NotiBotIcon.png",
     "splash": {
       "image": "./assets/NotiBotSplash.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#ff0000"
     },
     "updates": {
