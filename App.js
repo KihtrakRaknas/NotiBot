@@ -57,13 +57,13 @@ export default function App() {
   const responseListener = useRef();
   const mainStackLoadedRef = useRef({
     mainStackLoaded: () =>{
-      if(mainStackLoadedRef.current.loaded == false)
-          setTimeout(()=>SplashScreen.hideAsync().catch(),500)
+      setTimeout(()=>SplashScreen.hideAsync().catch(),500)
       mainStackLoadedRef.current.loaded = true
       if(mainStackLoadedRef.current.queue)
         mainStackLoadedRef.current.queue()
     },
     loaded:false,
+    projectsLoaded:false,
     queue:null
   });
   const [initialDeepLink, setInitialDeepLink] = React.useState(null);
