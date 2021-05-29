@@ -57,7 +57,8 @@ export default function App() {
   const responseListener = useRef();
   const mainStackLoadedRef = useRef({
     mainStackLoaded: () =>{
-      setTimeout(()=>SplashScreen.hideAsync().catch(),500)
+      if(mainStackLoadedRef.current.loaded == false)
+          setTimeout(()=>SplashScreen.hideAsync().catch(),500)
       mainStackLoadedRef.current.loaded = true
       if(mainStackLoadedRef.current.queue)
         mainStackLoadedRef.current.queue()
