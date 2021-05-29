@@ -43,7 +43,7 @@ export default function Home({ navigation }) {
     const valid = await checkProjName()
     if (valid) {
       try{
-        await db.collection('Projects').doc(projectName).set({
+        await db.collection('Projects').doc(projectName.toUpperCase()).set({
           'Owner': firebase.firestore.FieldValue.arrayUnion(currentUserUid)
         })
         await db.collection('Users').doc(currentUserUid).set({
@@ -59,11 +59,11 @@ export default function Home({ navigation }) {
   }
 
   async function checkProjName() {
-    if (projectName.length < 2) {
+    if (projectName.toUpperCase().length < 2) {
       setErrorMessage(`Your name must be at least 2 characters. You only have: ${projectName.length}`)
       return false
     }
-    if (!projectName.match("^[A-Za-z0-9]+$")){
+    if (!projectName.toUpperCase().match("^[A-Z0-9]+$")){
       setErrorMessage(`Your name must only have letters and numbers (no spaces or special characters)`)
       return false
     }

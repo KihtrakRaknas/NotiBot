@@ -2,13 +2,13 @@
   "expo": {
     "name": "NotiBot",
     "slug": "NotiBot",
-    "version": "1.1.0",
+    "version": "1.1.2",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/NotiBotIcon.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/NotiBotSplash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#ff0000"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -28,14 +28,10 @@
       }
     },
     "android": {
-      "versionCode": 1,
+      "versionCode": 2,
       "package": "com.kihtrak.NOTIBOT",
       "googleServicesFile": "./google-services.json",
       "useNextNotificationsApi":true,
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
-      },
       "config": {
         "googleSignIn": {
           "apiKey": "AIzaSyAH1oQArVDhObvK9-OZ1ouzKUMtDYPH-zk",
@@ -44,7 +40,7 @@
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png",
+      "favicon": "./assets/NotiBotIconTransparent.png",
       "config": {
         "firebase": {
           "apiKey": "AIzaSyBc_AtukKnVqdNYRefB-NtZLy5otD8KMvA",

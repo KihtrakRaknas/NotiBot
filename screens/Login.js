@@ -8,6 +8,7 @@ import { SocialIcon } from 'react-native-elements';
 import * as WebBrowser from 'expo-web-browser';
 import { Button } from 'react-native-elements';
 import Constants from 'expo-constants';
+import * as SplashScreen from 'expo-splash-screen';
 WebBrowser.maybeCompleteAuthSession();
 
 export default function Login({ navigation }) {
