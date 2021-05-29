@@ -47,7 +47,7 @@ export default function Home({ navigation }) {
           'Owner': firebase.firestore.FieldValue.arrayUnion(currentUserUid)
         })
         await db.collection('Users').doc(currentUserUid).set({
-          'Projects': firebase.firestore.FieldValue.arrayUnion(projectName)
+          'Projects': firebase.firestore.FieldValue.arrayUnion(projectName.toUpperCase())
         }, { merge: true })
         setVisible(false)
       } catch(e) {
