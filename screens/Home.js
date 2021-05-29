@@ -169,8 +169,8 @@ export default function Home({ navigation }) {
     if(parsedDeepLink && parsedDeepLink.length>1 && parsedDeepLink[0]=='/') {
       // Moved to a separate effect so it wont get triggers everytime projects changes
       // linkTo(parsedDeepLink)
-    }else if(numberOfProjects === projects.length && !mainStackLoadedRef.current.queue) { // projects have finished downloading
-      if(projects.length>0 && mainStackLoadedRef.current.loaded == false){
+    }else if(numberOfProjects === projects.length && !mainStackLoadedRef.current.queue && mainStackLoadedRef.current.loaded == false) { // projects have finished downloading
+      if(projects.length>0){
         console.log("opening most recent project!")
         navigation.navigate("Project", { title: projects[0].title })
       }
