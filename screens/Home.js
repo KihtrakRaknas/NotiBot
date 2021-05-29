@@ -209,6 +209,7 @@ export default function Home({ navigation }) {
                 projects.sort((a, b) => getTimeStamp(b) - getTimeStamp(a))
                 setLoading(false)
                 console.log(projects)
+                console.log(`new projects: ${projects}`)
                 return projects
               })
 
