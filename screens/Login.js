@@ -2,7 +2,6 @@ import React from 'react';
 import { StyleSheet, Text, TextInput, View, Alert, KeyboardAvoidingView, TouchableOpacity, SafeAreaView, Platform} from 'react-native'
 import firebase from 'firebase';
 import * as Google from 'expo-auth-session/providers/google';
-// import * as Google from 'expo-google-app-auth';
 import * as GoogleSignIn from 'expo-google-sign-in';
 import { SocialIcon } from 'react-native-elements';
 import * as WebBrowser from 'expo-web-browser';
@@ -31,6 +30,8 @@ export default function Login({ navigation }) {
     .catch(error => {
       if(error.message.includes("The user may have been deleted"))
         error.message = error.message.substring(0,error.message.indexOf("The user may have been deleted"))
+      // if(error.message.includes("the user does not have a password"))
+      //   error.message =
       Alert.alert(error.message)
       setErrorMessage(error.message)
     })
@@ -56,13 +57,6 @@ export default function Login({ navigation }) {
     }
 
   }, []);
-
-  // const config = {
-  //   //
-  //   //androidClientId:"",
-  //   iosClientId: "896187396809-2ks3dj1dogegfsc8a9jr32s33tt4rben.apps.googleusercontent.com",
-  //   androidClientId: "896187396809-tn8u9tp3thnvv07njp6ik46j8ot6k6lc.apps.googleusercontent.com"
-  // }
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest(
     {
@@ -90,7 +84,7 @@ export default function Login({ navigation }) {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS=="ios"?"padding":"height"} style={styles.container}>
-      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', margin:20 }}>
         <Text style={styles.title}>Login</Text>
         {errorMessage &&
         <Text style={styles.errorMessage}>
@@ -123,7 +117,7 @@ export default function Login({ navigation }) {
         >
           <Text style={{color:"white",fontSize:20,}}>Sign In</Text>
         </TouchableOpacity>
-        <SocialIcon
+        {(Platform.OS != 'ios' || Constants.appOwnership != "standalone" || errorMessage == "The password is invalid or the user does not have a password.") && <SocialIcon
           title={"Sign In With Google"}
           disabled={(Constants.appOwnership != "standalone" || Platform.OS == 'web') && !request}
           button={true}
@@ -152,7 +146,7 @@ export default function Login({ navigation }) {
               }
             }
           }}
-        />
+        />}
         <Button
           titleStyle={{color:"white"}}//"#d1faff"
           title="Don't have an account? Sign Up"

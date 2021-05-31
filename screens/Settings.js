@@ -12,6 +12,7 @@ export default function Settings({navigation}) {
 
   return (
     <View style={styles.container}>
+      {/* <Button title="test" onPress={()=>firebase.auth().currentUser.updateProfile({displayName: "Demo",photoURL: "https://images-na.ssl-images-amazon.com/images/I/51zLZbEVSTL._AC_SL1200_.jpg"})} /> */}
       <Button title="Sign Out" onPress={signOut}/>
     </View>
   )
