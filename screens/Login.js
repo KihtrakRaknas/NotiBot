@@ -142,7 +142,7 @@ export default function Login({ navigation }) {
                   });
                 }
               } catch ({ message }) {
-                Alert.alert('login: Error:' + message);
+                //Alert.alert('login: Error:' + message);
               }
             }
           }}
