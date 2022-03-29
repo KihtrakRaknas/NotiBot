@@ -291,7 +291,7 @@ export default function Home({ navigation }) {
                 >
                 <Avatar size="large" rounded title={item.title.substring(0, 2)} />
                 <ListItem.Content>
-                  <ListItem.Title style={styles.listItemTitle}>{item.title}</ListItem.Title>
+                  <ListItem.Title style={styles.listItemTitle} adjustsFontSizeToFit numberOfLines={1}>{item.title}</ListItem.Title>
                   <ListItem.Subtitle style={styles.listItemSubtitle}>{item.subtitle}</ListItem.Subtitle>
                 </ListItem.Content>
                 <ListItem.Chevron />
@@ -333,8 +333,8 @@ const styles = StyleSheet.create({
     color: 'blue', marginBottom: 20
   },
   listItemTitle: {
-    fontSize: 30,
-    fontWeight: "bold"
+    fontSize: Platform.OS!="web"?30:20, // auto font scaling doesn't work on web
+    fontWeight: "bold",
   },
   listItemSubtitle: {
     //fontSize:20
