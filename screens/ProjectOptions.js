@@ -40,7 +40,7 @@ export default function Home({ navigation, route }) {
                             if (uid == currentUserUid)
                                 tempCurrentGroupNum = groups.indexOf(groupName)
                             if (!profileInfoMap.current[uid])
-                                fetch("https://notibot-server.herokuapp.com/getProfileInfo", { body: JSON.stringify({ uid }), method: 'POST', headers: { "Content-Type": "application/json" } }).then((res) => res.json()).then((profile) => {
+                                fetch("https://noti.kihtrak.com/getProfileInfo", { body: JSON.stringify({ uid }), method: 'POST', headers: { "Content-Type": "application/json" } }).then((res) => res.json()).then((profile) => {
                                     profileInfoMap.current[uid] = profile
                                     //console.log(profile)
                                     setUsers((users)=>[...users, { group: groupName, profile: profileInfoMap.current[uid] }])
@@ -87,7 +87,7 @@ export default function Home({ navigation, route }) {
                 text: 'Delete',
                 onPress: async () => {
                     firebase.auth().currentUser.getIdToken(true)
-                        .then((idToken) => fetch("https://notibot-server.herokuapp.com/deleteProject", { body: JSON.stringify({ idToken, project: projTitle }), method: 'POST', headers: { "Content-Type": "application/json" } }))
+                        .then((idToken) => fetch("https://noti.kihtrak.com/deleteProject", { body: JSON.stringify({ idToken, project: projTitle }), method: 'POST', headers: { "Content-Type": "application/json" } }))
                         .catch(e => Alert.alert("An error occurred while attempting to delete the project"))
                 },
                 style: "destructive"
@@ -112,11 +112,11 @@ export default function Home({ navigation, route }) {
     }
 
     const addUser = () => {
-        fetch("https://notibot-server.herokuapp.com/getProfileByEmail", { body: JSON.stringify({ email }), method: 'POST', headers: { "Content-Type": "application/json" } })
+        fetch("https://noti.kihtrak.com/getProfileByEmail", { body: JSON.stringify({ email }), method: 'POST', headers: { "Content-Type": "application/json" } })
             .then((res) => res.json()).then((profile) => {
                 console.log(profile)
                 return firebase.auth().currentUser.getIdToken(true)
-                    .then((idToken) => fetch("https://notibot-server.herokuapp.com/addUserToProject", { 
+                    .then((idToken) => fetch("https://noti.kihtrak.com/addUserToProject", { 
                         body: JSON.stringify({ idToken, project: projTitle, uid:profile.uid }), 
                         method: 'POST', 
                         headers: { "Content-Type": "application/json" } 
@@ -125,11 +125,11 @@ export default function Home({ navigation, route }) {
     }
 
     const removeUser = (email) => {
-        fetch("https://notibot-server.herokuapp.com/getProfileByEmail", { body: JSON.stringify({ email }), method: 'POST', headers: { "Content-Type": "application/json" } })
+        fetch("https://noti.kihtrak.com/getProfileByEmail", { body: JSON.stringify({ email }), method: 'POST', headers: { "Content-Type": "application/json" } })
             .then((res) => res.json()).then((profile) => {
                 console.log(profile)
                 return firebase.auth().currentUser.getIdToken(true)
-                    .then((idToken) => fetch("https://notibot-server.herokuapp.com/removeUserFromProject", { 
+                    .then((idToken) => fetch("https://noti.kihtrak.com/removeUserFromProject", { 
                         body: JSON.stringify({ idToken, project: projTitle, uid:profile.uid }), 
                         method: 'POST', 
                         headers: { "Content-Type": "application/json" } 
