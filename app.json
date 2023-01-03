@@ -28,7 +28,7 @@
       }
     },
     "android": {
-      "versionCode": 7,
+      "versionCode": 9,
       "package": "com.kihtrak.NOTIBOT",
       "googleServicesFile": "./google-services.json",
       "useNextNotificationsApi":true,
@@ -37,7 +37,8 @@
           "apiKey": "AIzaSyAH1oQArVDhObvK9-OZ1ouzKUMtDYPH-zk",
           "certificateHash": "F2:7E:13:C4:20:82:18:72:28:2A:92:3B:4C:B4:5F:78:A4:FE:42:13"
         }
-      }
+      },
+      "permissions":[]
     },
     "web": {
       "favicon": "./assets/NotiBotIconTransparent.png",
