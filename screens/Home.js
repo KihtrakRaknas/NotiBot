@@ -71,6 +71,15 @@ export default function Home({ navigation }) {
   }
 
   async function registerForPushNotificationsAsync() {
+      if (Platform.OS === 'android') {
+        Notifications.setNotificationChannelAsync('default', {
+          name: 'default',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#FF00007C',
+        });
+      }
+
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
       if (existingStatus !== 'granted') {
@@ -86,16 +95,6 @@ export default function Home({ navigation }) {
       firebase.firestore().collection('Users').doc(currentUserUid).set({
         'Push Tokens': firebase.firestore.FieldValue.arrayUnion(token)
       }, { merge: true })
-
-
-    if (Platform.OS === 'android') {
-      Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF00007C',
-      });
-    }
   };
 
   async function setNotificationCategories() {
