@@ -2,7 +2,7 @@
   "expo": {
     "name": "NotiBot",
     "slug": "NotiBot",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "orientation": "portrait",
     "icon": "./assets/NotiBotIcon.png",
     "splash": {

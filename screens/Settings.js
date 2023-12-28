@@ -3,9 +3,15 @@ import { StyleSheet, Platform, Image, Text, View, FlatList, ActivityIndicator, A
 import { ListItem, Button } from 'react-native-elements'
 import firebase from 'firebase';
 import '@firebase/firestore';
-import { Notifications } from 'expo';
+import * as Notifications from 'expo-notifications'
 
 export default function Settings({navigation}) {
+  const [token, setToken] = React.useState("No token");
+
+  React.useEffect(() => {
+    Notifications.getExpoPushTokenAsync().then(res=>{setToken(res.data)})
+  }, []);
+
   function signOut(){
     firebase.auth().signOut().then().catch((error) => console.error('Sign Out Error', error))
   }
@@ -42,6 +48,7 @@ export default function Settings({navigation}) {
         onPress={deleteAccount}
         containerStyle={{ marginTop: 20, }}
       />
+      <Text style={{ marginTop: 40 }}>You token for debugging is: {token}</Text>
     </View>
   )
 }
