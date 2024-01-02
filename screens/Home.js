@@ -297,7 +297,7 @@ export default function Home({ navigation }) {
               </ListItem>)
             }}
             keyExtractor={item => item.title}
-            ListFooterComponent={Platform.OS == 'web' && <Button title="Open Docs" titleStyle={{textDecorationLine:"underline",color:"white"}} onPress={()=>WebBrowser.openBrowserAsync('https://notibotdocs.kihtrak.com',{controlsColor:'#FF0000',showTitle:true})} type="clear"/>}
+            ListFooterComponent={<Button title="Open Docs" titleStyle={{textDecorationLine:"underline",color:"white"}} onPress={()=>WebBrowser.openBrowserAsync('https://notibotdocs.kihtrak.com',{controlsColor:'#FF0000',showTitle:true})} type="clear"/>}
             ListEmptyComponent={<View style={{ flex: 1, flexGrow: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}><Text style={{color:"white"}}>You currently have no projects</Text><Button style={{ marginTop: 10 }} title="Create a new project" onPress={toggleOverlay} /></View>}
           />
         </>}
