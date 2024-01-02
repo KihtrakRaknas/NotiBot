@@ -7,9 +7,10 @@ import * as Notifications from 'expo-notifications'
 
 export default function Settings({navigation}) {
   const [token, setToken] = React.useState("No token");
+  const [showToken, setShowToken] = React.useState(false);
 
   React.useEffect(() => {
-    Notifications.getExpoPushTokenAsync().then(res=>{setToken(res.data)})
+    Notifications.getExpoPushTokenAsync().then(res=>{setToken(res.data)}).catch(e=>setToken(e.message))
   }, []);
 
   function signOut(){
@@ -48,7 +49,13 @@ export default function Settings({navigation}) {
         onPress={deleteAccount}
         containerStyle={{ marginTop: 20, }}
       />
-      <Text style={{ marginTop: 40 }}>You token for debugging is: {token}</Text>
+      {!showToken && <Button 
+        buttonStyle={styles.infoButton}
+        title="Show Debug info" 
+        onPress={()=>setShowToken(true)}
+        containerStyle={{ marginTop: 20, }}
+      />}
+      {showToken && <Text style={{ marginTop: 40 }}>You token for debugging is: {token}</Text>}
     </View>
   )
 }
@@ -61,5 +68,8 @@ const styles = StyleSheet.create({
   },
   dangerButton: {
     backgroundColor: "red"
+  },
+  infoButton: {
+    backgroundColor: "teal"
   },
 })
