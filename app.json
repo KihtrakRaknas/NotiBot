@@ -2,7 +2,7 @@
   "expo": {
     "name": "NotiBot",
     "slug": "NotiBot",
-    "version": "1.2.1",
+    "version": "1.3.0",
     "orientation": "portrait",
     "icon": "./assets/NotiBotIcon.png",
     "splash": {
@@ -28,17 +28,17 @@
       }
     },
     "android": {
-      "versionCode": 9,
+      "versionCode": 10,
       "package": "com.kihtrak.NOTIBOT",
       "googleServicesFile": "./google-services.json",
-      "useNextNotificationsApi":true,
+      "useNextNotificationsApi": true,
       "config": {
         "googleSignIn": {
           "apiKey": "AIzaSyAH1oQArVDhObvK9-OZ1ouzKUMtDYPH-zk",
           "certificateHash": "F2:7E:13:C4:20:82:18:72:28:2A:92:3B:4C:B4:5F:78:A4:FE:42:13"
         }
       },
-      "permissions":[]
+      "permissions": []
     },
     "web": {
       "favicon": "./assets/NotiBotIconTransparent.png",
@@ -55,6 +55,11 @@
         }
       }
     },
-    "scheme": "notibot"
+    "scheme": "notibot",
+    "extra": {
+      "eas": {
+        "projectId": "b72af8b4-2539-4015-bcb5-ef4a940e55ad"
+      }
+    }
   }
 }
