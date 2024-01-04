@@ -7,7 +7,6 @@ export default (string)=>{
     total%=126
     // total-=32
     total/=(126)
-    const firstPartOfString = '#' + total.toString(16).substr(2, 6)
-    console.log(firstPartOfString)
+    const firstPartOfString = '#' + total.toString(16).substring(2,8)
     return [ firstPartOfString + "00", firstPartOfString + "30"]
 }

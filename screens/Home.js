@@ -276,7 +276,7 @@ export default function Home({ navigation }) {
             data={projects}
             renderItem={({ item }) => {
               console.log(`item: ${JSON.stringify(item)}`)
-              return (<ListItem style={{ borderRadius: 20, marginVertical: 5 }} bottomDivider topDivider onPress={() => {
+              return (<ListItem style={{ borderRadius: 20, marginVertical: 5, backgroundColor:"white" }} bottomDivider topDivider onPress={() => {
                 // navigation.closeDrawer()
                 navigation.navigate("Project", { title: item.title })
               }}
