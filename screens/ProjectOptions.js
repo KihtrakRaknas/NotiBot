@@ -1,13 +1,14 @@
 import React from 'react'
-import { StyleSheet, Platform, Image, Text, View, FlatList, ActivityIndicator, Modal, SafeAreaView, TextInput, KeyboardAvoidingView, ScrollView, Alert } from 'react-native'
+import { StyleSheet, Platform, Image, Text, View, FlatList, ActivityIndicator, Modal, SafeAreaView, TextInput, KeyboardAvoidingView, ScrollView, TouchableOpacity, Clipboard, Share } from 'react-native'
 import { ListItem, Button, Overlay, Avatar, Icon } from 'react-native-elements'
 import WebModal from 'modal-react-native-web';
 import DropDownPicker from 'react-native-dropdown-picker';
 import firebase from 'firebase';
 import { ProjectsContext } from '../utils/contexts'
 import { groups } from '../utils/constants'
+import alert from '../utils/alert'
 
-const groupDescriptions = ["Full Access", "Can't delete project or edit team members", "Can only view data, can't delete notifications"]
+const groupDescriptions = ["Full Access", "Can't delete project, edit team members, or toggle API key", "Can only view data, can't delete notifications"]
 
 export default function Home({ navigation, route }) {
     const { projectsData, listenToProject, stopListeningToProject } = React.useContext(ProjectsContext);
@@ -18,6 +19,8 @@ export default function Home({ navigation, route }) {
     const [visible, setVisible] = React.useState(false);
     const [email, setEmail] = React.useState('');
     const [errorMessage, setErrorMessage] = React.useState('');
+    const [APIKey, setAPIKey] = React.useState(null);
+    const [showAPIKey, setShowAPIKey] = React.useState(false);
     const profileInfoMap = React.useRef({});
 
     const db = firebase.firestore();
@@ -30,6 +33,7 @@ export default function Home({ navigation, route }) {
         const handleProjUpdate = (newData) => {
             console.log("triggered")
             if (newData) {
+                setAPIKey(newData.APIKey)
                 let tempUsers = []
                 let tempCurrentGroupNum
                 for (let groupName of groups){
@@ -81,14 +85,48 @@ export default function Home({ navigation, route }) {
         setVisible(!visible);
     };
 
+    const APIKeyToggle = () => {
+        if(APIKey){
+            alert(`Delete API Key`, `Are you sure you want to delete the API Key for ${projTitle}?`,
+                [{
+                    text: 'Delete',
+                    onPress: () => {
+                        db.collection('Projects').doc(projTitle).update({
+                            APIKey: firebase.firestore.FieldValue.delete()
+                        })
+                    },
+                    style: "destructive"
+                }, { text: 'Cancel', style: 'cancel' },],
+                { cancelable: true }
+            );
+        }else{
+            alert(`Enable API Key`, `Any future request will require this key.`,
+                [{
+                    text: 'Enable',
+                    onPress: () => {
+                        firebase.auth().currentUser.getIdToken(true)
+                        .then((idToken) => fetch("https://noti.kihtrak.com/addAPIKey", { 
+                            body: JSON.stringify({ idToken, project: projTitle }), 
+                            method: 'POST', 
+                            headers: { "Content-Type": "application/json" } 
+                        }))
+                        .catch(e => alert("An error occurred while attempting to enable the API Key"))
+                    },
+                    style: "destructive"
+                }, { text: 'Cancel', style: 'cancel' },],
+                { cancelable: true }
+            );
+        }
+    }
+
     const deleteProject = () => {
-        Alert.alert(`Delete ${projTitle}`, `Are you sure you want to delete ${projTitle}?`,
+        alert(`Delete ${projTitle}`, `Are you sure you want to delete ${projTitle}?`,
             [{
                 text: 'Delete',
                 onPress: async () => {
                     firebase.auth().currentUser.getIdToken(true)
                         .then((idToken) => fetch("https://noti.kihtrak.com/deleteProject", { body: JSON.stringify({ idToken, project: projTitle }), method: 'POST', headers: { "Content-Type": "application/json" } }))
-                        .catch(e => Alert.alert("An error occurred while attempting to delete the project"))
+                        .catch(e => alert("An error occurred while attempting to delete the project"))
                 },
                 style: "destructive"
             }, { text: 'Cancel', style: 'cancel' },],
@@ -97,13 +135,13 @@ export default function Home({ navigation, route }) {
     }
 
     const deleteNotifications = () => {
-        Alert.alert(`Delete ${projTitle}`, `Are you sure you want to delete all of ${projTitle}'s notifications?`,
+        alert(`Delete ${projTitle}`, `Are you sure you want to delete all of ${projTitle}'s notifications?`,
             [{
                 text: 'Delete',
                 onPress: async () => {
                     await db.collection('Projects').doc(projTitle).update({
                         Notifications: firebase.firestore.FieldValue.delete()
-                    }).then(() => navigation.goBack()).catch(e => Alert.alert("An error occurred while attempting to delete the notifications"))
+                    }).then(() => navigation.goBack()).catch(e => alert("An error occurred while attempting to delete the notifications"))
                 },
                 style: "destructive"
             }, { text: 'Cancel', style: 'cancel' },],
@@ -121,7 +159,7 @@ export default function Home({ navigation, route }) {
                         method: 'POST', 
                         headers: { "Content-Type": "application/json" } 
                     }))
-            }).then(()=>setVisible(false)).catch(e => Alert.alert(`An error occurred while attempting to add ${email} to the project`))
+            }).then(()=>setVisible(false)).catch(e => alert(`An error occurred while attempting to add ${email} to the project`))
     }
 
     const removeUser = (email) => {
@@ -134,7 +172,7 @@ export default function Home({ navigation, route }) {
                         method: 'POST', 
                         headers: { "Content-Type": "application/json" } 
                     }))
-            }).catch(e => Alert.alert(`An error occurred while attempting to remove ${email} from the project`))
+            }).catch(e => alert(`An error occurred while attempting to remove ${email} from the project`))
     }
 
     const leaveProject = async () => {
@@ -144,6 +182,10 @@ export default function Home({ navigation, route }) {
         await db.collection('Users').doc(currentUserUid).update({
             'Projects': firebase.firestore.FieldValue.arrayRemove(projTitle)
         })
+    }
+
+    const copyToClipboard = () => {
+        Platform.OS === 'web' ? Clipboard.setString(APIKey) : Share.share({message: APIKey});
     }
 
     return (
@@ -187,7 +229,7 @@ export default function Home({ navigation, route }) {
                                     const {value:newValue} = el
                                     console.log(newValue)
                                     if(newValue == "Remove"){
-                                        Alert.alert(`Remove ${item.profile.email}`, `Are you sure you want remove ${item.profile.email} from this project?`,
+                                        alert(`Remove ${item.profile.email}`, `Are you sure you want remove ${item.profile.email} from this project?`,
                                             [{
                                                 text: 'Remove',
                                                 onPress: async () => {
@@ -253,24 +295,35 @@ export default function Home({ navigation, route }) {
                     }
                     return arr
                 })()}
+                {APIKey &&
+                    <TouchableOpacity onPress={()=>{showAPIKey ? copyToClipboard() : setShowAPIKey(true)}} style={styles.codeContainer}>
+                        <Text style={styles.code}>{showAPIKey ? APIKey : "Click to show API key"}</Text>
+                    </TouchableOpacity>}
+                {(!APIKey || showAPIKey) && <Button
+                    disabled={currentGroupNum > 0}
+                    containerStyle={styles.btnContainer}
+                    title={APIKey?"Disable API Key":"Enable API Key"}
+                    buttonStyle={APIKey?styles.leaveButton:styles.keyButton}
+                    onPress={APIKeyToggle}
+                />}
                 <Button
                     disabled={currentGroupNum > 1}
-                    containerStyle={{ marginTop: 20, }}
+                    containerStyle={styles.btnContainer}
                     title="Delete Notifications"
                     buttonStyle={styles.deleteButton}
                     onPress={deleteNotifications}
                 />
                 <Button
                     disabled={!canLeave}
-                    containerStyle={{ marginTop: 20, }}
+                    containerStyle={styles.btnContainer}
                     title={`Leave Project`}
                     buttonStyle={styles.leaveButton}
                     onPress={leaveProject}
                 />
-                {!canLeave && <Text style={styles.explanationText}>You are the only owner, you can't leave until appointing a new owner</Text>}
+                {!canLeave && <Text style={styles.explanationText}>You are the only owner, you can't leave without appointing a new owner</Text>}
                 <Button
                     disabled={currentGroupNum > 0}
-                    containerStyle={{ marginTop: 20, }}
+                    containerStyle={styles.btnContainer}
                     title="Delete Project"
                     buttonStyle={styles.deleteButton}
                     onPress={deleteProject}
@@ -292,6 +345,14 @@ const styles = StyleSheet.create({
     },
     leaveButton: {
         backgroundColor: "blue"
+    },
+    keyButton: {
+        backgroundColor: "teal"
+    },
+    btnContainer: { 
+        marginTop: 20, 
+        width: "90%", 
+        maxWidth: 600 
     },
     listItem: {
         width: "100%",
@@ -331,5 +392,19 @@ const styles = StyleSheet.create({
         marginBottom: 0,
         color: "white",
         textAlign: 'center'
-    }
+    },
+    codeContainer: {
+        backgroundColor: '#1E1E1E',
+        padding: 16,
+        borderRadius: 8,
+        margin: 16,
+        marginBottom: 6,
+        maxWidth: "90%"
+    },
+    code: {
+        color: '#FFFFFF',
+        fontFamily: 'Courier New',
+        fontSize: 14,
+        lineHeight: 20,
+    },
 })
