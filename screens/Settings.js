@@ -42,18 +42,19 @@ export default function Settings({navigation}) {
         buttonStyle={styles.dangerButton} 
         title="Sign Out" 
         onPress={signOut}
+        containerStyle={styles.btnContainer}
       />
       <Button 
         buttonStyle={styles.dangerButton}
         title="Delete Account" 
         onPress={deleteAccount}
-        containerStyle={{ marginTop: 20, }}
+        containerStyle={styles.btnContainer}
       />
       {!showToken && <Button 
         buttonStyle={styles.infoButton}
         title="Show Debug info" 
         onPress={()=>setShowToken(true)}
-        containerStyle={{ marginTop: 20, }}
+        containerStyle={styles.btnContainer}
       />}
       {showToken && <Text style={{ marginTop: 40 }}>You token for debugging is: {token}</Text>}
     </View>
@@ -71,5 +72,10 @@ const styles = StyleSheet.create({
   },
   infoButton: {
     backgroundColor: "teal"
+  },
+  btnContainer: { 
+    marginTop: 20, 
+    width: "90%", 
+    maxWidth: 500 
   },
 })
